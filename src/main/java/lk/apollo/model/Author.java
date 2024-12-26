@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Component
 @NoArgsConstructor
@@ -16,19 +17,28 @@ public class Author {
 
     @Id
     @SequenceGenerator(
-            name = "ticket_id",
-            sequenceName = "ticket_id"
+            name = "author_id_seq",
+            sequenceName = "author_id_seq"
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "ticket_id"
+            generator = "author_id_seq"
     )
-    private Long authorId;
+    private Long authorId; // Primary key for the author
 
-    private String name;
+    private String firstName;
+
+    private String lastName;
+
+    private String email;
+
+    private String companyName;
 
     private LocalDate birthDate;
 
     private String nationality;
 
+    // One-to-many relationship with books. An author can write multiple books.
+    @OneToMany(mappedBy = "author")
+    private List<Book> books;
 }

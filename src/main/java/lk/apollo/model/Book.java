@@ -36,4 +36,7 @@ public class Book {
     private Integer pageCount;
 
     private String language;
+
+    @Lob // JPA annotation to map to a large object type in the database
+    private String url;
 }

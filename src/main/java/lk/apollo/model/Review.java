@@ -1,9 +1,15 @@
 package lk.apollo.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
+@Component
+@NoArgsConstructor
+@Data
 @Entity
 @Table(name = "reviews")
 public class Review {

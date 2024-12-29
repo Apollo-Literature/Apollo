@@ -1,4 +1,6 @@
 package lk.apollo.repository;
 
-public class AuthorRepository {
-}
+import lk.apollo.model.Author;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AuthorRepository extends JpaRepository<Author, Long> {}

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -54,20 +53,11 @@ public class Book {
     // Many-to-many relationship with genres, using a join table `books_genres`.
     @ManyToMany
     @JoinTable(
-            name = "books_genres", // Ensure this matches the table name in the database
-            joinColumns = @JoinColumn(name = "book_id"), // Ensure this matches the foreign key column in the table
-            inverseJoinColumns = @JoinColumn(name = "genre_id") // Same for the inverse side
+            name = "books_genres",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
     private Set<Genre> genres;
-
-    // Many-to-many relationship with discounts, using a join table `books_discounts`.
-    @ManyToMany
-    @JoinTable(
-            name = "books_discounts",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "discount_id")
-    )
-    private Set<Discount> discounts;
 
     // One-to-many relationship with reviews. A book can have multiple reviews.
     @OneToMany(mappedBy = "book")

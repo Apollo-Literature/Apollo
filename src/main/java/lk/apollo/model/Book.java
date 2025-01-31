@@ -45,11 +45,6 @@ public class Book {
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;
 
-    // Many-to-one relationship with publishers. A book is published by one publisher.
-    @ManyToOne
-    @JoinColumn(name = "publisher_id", nullable = false)
-    private Publisher publisher;
-
     // Many-to-many relationship with genres, using a join table `books_genres`.
     @ManyToMany
     @JoinTable(

@@ -14,6 +14,10 @@ public class BookController {
 
     private BookService bookService;
 
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
     @GetMapping("/all-books")
     public ResponseEntity<List<BookDTO>> getAllBooks() {
         List<BookDTO> books = bookService.getAllBooks();

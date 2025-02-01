@@ -1,9 +1,11 @@
 package lk.apollo.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -11,7 +13,8 @@ import java.util.Set;
 
 @Component
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "books")
 public class Book {
@@ -28,6 +31,8 @@ public class Book {
     private Long bookId;
 
     private String title;
+
+    private String description;
 
     @Column(unique = true)
     private String isbn;

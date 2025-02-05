@@ -1,4 +1,4 @@
-package lk.apollo.Service;
+package lk.apollo.service;
 
 public class ChatService {
 }

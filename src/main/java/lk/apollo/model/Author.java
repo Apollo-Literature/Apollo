@@ -1,16 +1,12 @@
 package lk.apollo.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Component
 @NoArgsConstructor
-@Data
 @Entity
 @Table(name = "authors")
 public class Author {
@@ -32,8 +28,6 @@ public class Author {
 
     private String email;
 
-    private String companyName;
-
     private LocalDate birthDate;
 
     private String nationality;
@@ -41,4 +35,71 @@ public class Author {
     // One-to-many relationship with books. An author can write multiple books.
     @OneToMany(mappedBy = "author")
     private List<Book> books;
+
+    public Author() {
+    }
+
+    public Author(String firstName, String lastName, String email, LocalDate birthDate, String nationality) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.birthDate = birthDate;
+        this.nationality = nationality;
+    }
+
+    public Long getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(Long authorId) {
+        this.authorId = authorId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public String getNationality() {
+        return nationality;
+    }
+
+    public void setNationality(String nationality) {
+        this.nationality = nationality;
+    }
+
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
 }

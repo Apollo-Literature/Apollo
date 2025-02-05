@@ -7,9 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-@Component
 @NoArgsConstructor
-@Data
 @Entity
 @Table(name = "genres")
 public class Genre {
@@ -30,4 +28,33 @@ public class Genre {
     // Many-to-many relationship with books, handled through the `books_genres` join table.
     @ManyToMany(mappedBy = "genres")
     private Set<Book> books;
+
+    public Genre(String name, Set<Book> books) {
+        this.name = name;
+        this.books = books;
+    }
+
+    public Long getGenreId() {
+        return genreId;
+    }
+
+    public void setGenreId(Long genreId) {
+        this.genreId = genreId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Set<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(Set<Book> books) {
+        this.books = books;
+    }
 }

@@ -1,5 +1,6 @@
 package lk.apollo.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lk.apollo.dto.BookDTO;
 import lk.apollo.model.Author;
 import lk.apollo.model.Book;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -79,16 +81,15 @@ public class BookService {
      */
     private Book mapToEntity(BookDTO bookDTO) {
         Author author = authorRepository.findById(bookDTO.getAuthorId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Author ID"));
+                .orElseThrow(() -> new EntityNotFoundException("Author not found for ID: " + bookDTO.getAuthorId()));
 
-        Set<Genre> genres = new HashSet<>();
-        if (bookDTO.getGenreIds() != null) {
-            for (Long genreId : bookDTO.getGenreIds()) {
-                Genre genre = genreRepository.findById( genreId)
-                        .orElseThrow(() -> new IllegalArgumentException("Invalid Genre ID: " + genreId));
-                genres.add(genre);
-            }
-        }
+        // Fetching Genres by IDs
+        Set<Genre> genres = Optional.ofNullable(bookDTO.getGenreIds())
+                .orElse(new HashSet<>())  // Avoid null by providing empty set if null
+                .stream()
+                .map(genreId -> genreRepository.findById(genreId)
+                        .orElseThrow(() -> new EntityNotFoundException("Genre not found for ID: " + genreId)))
+                .collect(Collectors.toSet());
 
         return new Book(
                 bookDTO.getTitle(),

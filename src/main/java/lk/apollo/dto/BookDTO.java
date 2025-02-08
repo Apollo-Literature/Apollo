@@ -1,7 +1,5 @@
 package lk.apollo.dto;
 
-import lombok.Data;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
@@ -19,8 +17,7 @@ public class BookDTO {
     private Set<Long> genreIds; // Reference by ID instead of entity
     private String url;
 
-    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, int pageCount,
-                   String language, BigDecimal price, Long authorId, Set<Long> genreIds, String url) {
+    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, int pageCount, String language, BigDecimal price, Long authorId, Set<Long> genreIds, String url) {
         this.title = title;
         this.description = description;
         this.isbn = isbn;

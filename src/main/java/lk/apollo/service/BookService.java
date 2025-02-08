@@ -7,7 +7,6 @@ import lk.apollo.model.Genre;
 import lk.apollo.repository.AuthorRepository;
 import lk.apollo.repository.BookRepository;
 import lk.apollo.repository.GenreRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;

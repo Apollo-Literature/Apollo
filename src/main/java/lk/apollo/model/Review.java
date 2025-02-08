@@ -15,7 +15,15 @@ import java.time.LocalDate;
 public class Review {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(
+            name = "review_id_seq",
+            sequenceName = "review_id_seq",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "review_id_seq"
+    )
     private Long reviewId; // Primary key for the review
 
     @ManyToOne

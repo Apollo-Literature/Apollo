@@ -4,25 +4,15 @@ import java.util.Set;
 
 public class GenreDTO {
 
-    private Long genreId;
     private String name;
-    private Set<String> books; // You can add a list of books' titles, or any other relevant book info
+    private Set<Long> bookIds; // Reference book IDs instead of full book objects
 
     public GenreDTO() {
     }
 
-    public GenreDTO(Long genreId, String name, Set<String> books) {
-        this.genreId = genreId;
+    public GenreDTO(String name, Set<Long> bookIds) {
         this.name = name;
-        this.books = books;
-    }
-
-    public Long getGenreId() {
-        return genreId;
-    }
-
-    public void setGenreId(Long genreId) {
-        this.genreId = genreId;
+        this.bookIds = bookIds;
     }
 
     public String getName() {
@@ -33,11 +23,11 @@ public class GenreDTO {
         this.name = name;
     }
 
-    public Set<String> getBooks() {
-        return books;
+    public Set<Long> getBookIds() {
+        return bookIds;
     }
 
-    public void setBooks(Set<String> books) {
-        this.books = books;
+    public void setBookIds(Set<Long> bookIds) {
+        this.bookIds = bookIds;
     }
 }

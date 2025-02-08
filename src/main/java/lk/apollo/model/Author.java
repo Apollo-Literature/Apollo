@@ -14,7 +14,8 @@ public class Author {
     @Id
     @SequenceGenerator(
             name = "author_id_seq",
-            sequenceName = "author_id_seq"
+            sequenceName = "author_id_seq",
+            allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,

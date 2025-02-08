@@ -15,13 +15,14 @@ public class Genre {
     @Id
     @SequenceGenerator(
             name = "genre_id_seq",
-            sequenceName = "genre_id_seq"
+            sequenceName = "genre_id_seq",
+            allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "genre_id_seq"
     )
-    private Long genreId; // Primary key for the genre
+    private Long genreId;
 
     private String name;
 
@@ -36,10 +37,6 @@ public class Genre {
 
     public Long getGenreId() {
         return genreId;
-    }
-
-    public void setGenreId(Long genreId) {
-        this.genreId = genreId;
     }
 
     public String getName() {

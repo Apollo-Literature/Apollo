@@ -1,8 +1,9 @@
 package lk.apollo.dto;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class AuthorDTO {
+public class AuthorDTO implements Serializable {
     private String firstName;
     private String lastName;
     private String email;

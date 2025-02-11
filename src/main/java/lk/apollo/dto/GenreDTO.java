@@ -1,8 +1,9 @@
 package lk.apollo.dto;
 
+import java.io.Serializable;
 import java.util.Set;
 
-public class GenreDTO {
+public class GenreDTO implements Serializable {
 
     private String name;
     private Set<Long> bookIds; // Reference book IDs instead of full book objects

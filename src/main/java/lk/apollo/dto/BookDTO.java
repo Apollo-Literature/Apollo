@@ -1,23 +1,25 @@
 package lk.apollo.dto;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
-
-public class BookDTO {
+//! Cannot have primitive datatypes
+//TODO: NoArgs, AllArgs, Serializable
+public class BookDTO implements Serializable {
     private String title;
     private String description;
     private String isbn;
     private LocalDate publicationDate;
-    private int pageCount;
+    private Integer pageCount;
     private String language;
     private BigDecimal price;
     private Long authorId; // Reference by ID instead of entity
     private Set<Long> genreIds; // Reference by ID instead of entity
     private String url;
 
-    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, int pageCount, String language, BigDecimal price, Long authorId, Set<Long> genreIds, String url) {
+    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, Long authorId, Set<Long> genreIds, String url) {
         this.title = title;
         this.description = description;
         this.isbn = isbn;
@@ -66,7 +68,7 @@ public class BookDTO {
         return pageCount;
     }
 
-    public void setPageCount(int pageCount) {
+    public void setPageCount(Integer pageCount) {
         this.pageCount = pageCount;
     }
 

@@ -69,7 +69,7 @@ public class BookService {
                 book.getPageCount(),
                 book.getLanguage(),
                 book.getPrice(),
-                book.getAuthor().getAuthorId(),
+                book.getAuthor(),
                 book.getGenres().stream().map(Genre::getGenreId).collect(Collectors.toSet()),
                 book.getUrl()
         );
@@ -82,9 +82,6 @@ public class BookService {
      * @return Book entity
      */
     private Book mapToEntity(BookDTO bookDTO) {
-        Author author = authorRepository.findById(bookDTO.getAuthorId())
-                .orElseThrow(() -> new EntityNotFoundException("Author not found for ID: " + bookDTO.getAuthorId()));
-
         // Fetching Genres by IDs
         Set<Genre> genres = Optional.ofNullable(bookDTO.getGenreIds())
                 .orElse(new HashSet<>())  // Avoid null by providing empty set if null
@@ -101,7 +98,7 @@ public class BookService {
                 bookDTO.getPageCount(),
                 bookDTO.getLanguage(),
                 bookDTO.getPrice(),
-                author,
+                bookDTO.getAuthor(),
                 genres,
                 null, // Reviews should be handled separately
                 bookDTO.getUrl()

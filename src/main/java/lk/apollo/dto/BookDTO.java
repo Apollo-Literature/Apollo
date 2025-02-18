@@ -1,5 +1,7 @@
 package lk.apollo.dto;
 
+import lk.apollo.model.Author;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,11 +17,11 @@ public class BookDTO implements Serializable {
     private Integer pageCount;
     private String language;
     private BigDecimal price;
-    private Long authorId; // Reference by ID instead of entity
+    private Author author; // Reference by ID instead of entity
     private Set<Long> genreIds; // Reference by ID instead of entity
     private String url;
 
-    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, Long authorId, Set<Long> genreIds, String url) {
+    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, Author authorId, Set<Long> genreIds, String url) {
         this.title = title;
         this.description = description;
         this.isbn = isbn;
@@ -27,7 +29,7 @@ public class BookDTO implements Serializable {
         this.pageCount = pageCount;
         this.language = language;
         this.price = price;
-        this.authorId = authorId;
+        this.author = authorId;
         this.genreIds = genreIds;
         this.url = url;
     }
@@ -88,12 +90,12 @@ public class BookDTO implements Serializable {
         this.price = price;
     }
 
-    public Long getAuthorId() {
-        return authorId;
+    public Author getAuthor() {
+        return author;
     }
 
     public void setAuthorId(Long authorId) {
-        this.authorId = authorId;
+        this.author = authorId;
     }
 
     public Set<Long> getGenreIds() {

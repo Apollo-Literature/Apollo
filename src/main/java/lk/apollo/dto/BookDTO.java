@@ -1,6 +1,7 @@
 package lk.apollo.dto;
 
 import lk.apollo.model.Author;
+import lk.apollo.model.Genre;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -18,10 +19,10 @@ public class BookDTO implements Serializable {
     private String language;
     private BigDecimal price;
     private Author author; // Reference by ID instead of entity
-    private Set<Long> genreIds; // Reference by ID instead of entity
+    private Set<GenreDTO> genre; // Reference by ID instead of entity
     private String url;
 
-    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, Author authorId, Set<Long> genreIds, String url) {
+    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, Author authorId, Set<GenreDTO> genre, String url) {
         this.title = title;
         this.description = description;
         this.isbn = isbn;
@@ -30,7 +31,7 @@ public class BookDTO implements Serializable {
         this.language = language;
         this.price = price;
         this.author = authorId;
-        this.genreIds = genreIds;
+        this.genre = genre;
         this.url = url;
     }
 
@@ -94,16 +95,16 @@ public class BookDTO implements Serializable {
         return author;
     }
 
-    public void setAuthorId(Long authorId) {
-        this.author = authorId;
+    public void setAuthor(Author author) {
+        this.author = author;
     }
 
-    public Set<Long> getGenreIds() {
-        return genreIds;
+    public Set<GenreDTO> getGenre() {
+        return genre;
     }
 
-    public void setGenreIds(Set<Long> genreIds) {
-        this.genreIds = genreIds;
+    public void setGenre(Set<GenreDTO> genre) {
+        this.genre = genre;
     }
 
     public String getUrl() {

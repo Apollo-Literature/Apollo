@@ -2,7 +2,6 @@ package lk.apollo.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lk.apollo.dto.BookDTO;
-import lk.apollo.model.Author;
 import lk.apollo.model.Book;
 import lk.apollo.model.Genre;
 import lk.apollo.repository.AuthorRepository;
@@ -70,7 +69,7 @@ public class BookService {
                 book.getLanguage(),
                 book.getPrice(),
                 book.getAuthor(),
-                book.getGenres().stream().map(Genre::getGenreId).collect(Collectors.toSet()),
+                book.getGenres(),
                 book.getUrl()
         );
     }
@@ -82,13 +81,7 @@ public class BookService {
      * @return Book entity
      */
     private Book mapToEntity(BookDTO bookDTO) {
-        // Fetching Genres by IDs
-        Set<Genre> genres = Optional.ofNullable(bookDTO.getGenreIds())
-                .orElse(new HashSet<>())  // Avoid null by providing empty set if null
-                .stream()
-                .map(genreId -> genreRepository.findById(genreId)
-                        .orElseThrow(() -> new EntityNotFoundException("Genre not found for ID: " + genreId)))
-                .collect(Collectors.toSet());
+
 
         return new Book(
                 bookDTO.getTitle(),
@@ -99,7 +92,7 @@ public class BookService {
                 bookDTO.getLanguage(),
                 bookDTO.getPrice(),
                 bookDTO.getAuthor(),
-                genres,
+                ,
                 null, // Reviews should be handled separately
                 bookDTO.getUrl()
         );

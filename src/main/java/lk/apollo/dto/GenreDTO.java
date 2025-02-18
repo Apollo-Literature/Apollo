@@ -6,14 +6,14 @@ import java.util.Set;
 public class GenreDTO implements Serializable {
 
     private String name;
-    private Set<Long> bookIds; // Reference book IDs instead of full book objects
+    private Set<BookDTO> books; // Reference book IDs instead of full book objects
 
     public GenreDTO() {
     }
 
-    public GenreDTO(String name, Set<Long> bookIds) {
+    public GenreDTO(String name, Set<BookDTO> books) {
         this.name = name;
-        this.bookIds = bookIds;
+        this.books = books;
     }
 
     public String getName() {
@@ -24,11 +24,11 @@ public class GenreDTO implements Serializable {
         this.name = name;
     }
 
-    public Set<Long> getBookIds() {
-        return bookIds;
+    public Set<BookDTO> getBooks() {
+        return books;
     }
 
-    public void setBookIds(Set<Long> bookIds) {
-        this.bookIds = bookIds;
+    public void setBooks(Set<BookDTO> books) {
+        this.books = books;
     }
 }

@@ -1,9 +1,8 @@
 package lk.apollo.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lk.apollo.dto.GenreDTO;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

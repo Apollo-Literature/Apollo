@@ -10,19 +10,19 @@ import org.springframework.stereotype.Component;
 public interface GenreMapper {
 
     /**
-     * Map Genre entity to GenreDTO
+     * Map GenreType entity to GenreDTO
      *
-     * @param genre - Genre entity
+     * @param genre - GenreType entity
      * @return GenreDTO instance
      */
     @Mapping(source = "books", target = "books")
     GenreDTO mapToDTO(Genre genre);
 
     /**
-     * Map GenreDTO to Genre entity
+     * Map GenreDTO to GenreType entity
      *
      * @param genreDTO - GenreDTO instance
-     * @return Genre entity
+     * @return GenreType entity
      */
     @Mapping(source = "books", target = "books")
     Genre mapToEntity(GenreDTO genreDTO);

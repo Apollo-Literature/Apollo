@@ -3,6 +3,8 @@ package lk.apollo.config;
 import jakarta.annotation.PostConstruct;
 import lk.apollo.model.Genre;
 import lk.apollo.model.Role;
+import lk.apollo.model.enums.GenreType;
+import lk.apollo.model.enums.RoleType;
 import lk.apollo.repository.GenreRepository;
 import lk.apollo.repository.RoleRepository;
 import org.springframework.stereotype.Component;
@@ -23,16 +25,16 @@ public class DataInitializer {
     @PostConstruct
     public void init() {
         // Initialize genres
-        for (lk.apollo.model.enums.Genre genreEnum : lk.apollo.model.enums.Genre.values()) {
-            String genreName = genreEnum.name().replace("_", " ");
+        for (GenreType genreTypeEnum : GenreType.values()) {
+            String genreName = genreTypeEnum.name().replace("_", " ");
             if (!genreRepository.existsByName(genreName)) {
                 genreRepository.save(new Genre(genreName, new HashSet<>()));
             }
         }
 
         // Initialize roles
-        for (lk.apollo.model.enums.Role roleEnum : lk.apollo.model.enums.Role.values()) {
-            String roleName = roleEnum.name();
+        for (RoleType roleTypeEnum : RoleType.values()) {
+            String roleName = roleTypeEnum.name();
             if (!roleRepository.existsByName(roleName)) {
                 roleRepository.save(new Role(roleName));
             }

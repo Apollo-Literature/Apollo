@@ -1,6 +1,6 @@
 package lk.apollo.model.enums;
 
-public enum Role {
+public enum RoleType {
     ADMIN,
     USER,
     AUTHOR,

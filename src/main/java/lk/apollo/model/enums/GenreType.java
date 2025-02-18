@@ -1,6 +1,6 @@
 package lk.apollo.model.enums;
 
-public enum Genre {
+public enum GenreType {
     NON_FICTION,
     MYSTERY,
     ROMANCE,

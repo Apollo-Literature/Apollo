@@ -45,7 +45,7 @@ public class BookService {
         // Fetch the genres from the database
         Set<Genre> genres = bookDTO.getGenres().stream()
                 .map(genreDTO -> genreRepository.findByName(genreDTO.getName())
-                        .orElseThrow(() -> new RuntimeException("Genre not found")))
+                        .orElseThrow(() -> new RuntimeException("GenreType not found")))
                 .collect(Collectors.toSet());
 
         // Map the BookDTO to a Book entity

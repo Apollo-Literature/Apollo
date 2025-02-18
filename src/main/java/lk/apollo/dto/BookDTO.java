@@ -1,8 +1,5 @@
 package lk.apollo.dto;
 
-import lk.apollo.model.Author;
-import lk.apollo.model.Genre;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,11 +15,11 @@ public class BookDTO implements Serializable {
     private Integer pageCount;
     private String language;
     private BigDecimal price;
-    private Author author; // Reference by ID instead of entity
-    private Set<GenreDTO> genre; // Reference by ID instead of entity
+    private UserDTO author; // Change from Author to UserDTO
+    private Set<GenreDTO> genres;
     private String url;
 
-    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, Author authorId, Set<GenreDTO> genre, String url) {
+    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, UserDTO author, Set<GenreDTO> genres, String url) {
         this.title = title;
         this.description = description;
         this.isbn = isbn;
@@ -30,8 +27,8 @@ public class BookDTO implements Serializable {
         this.pageCount = pageCount;
         this.language = language;
         this.price = price;
-        this.author = authorId;
-        this.genre = genre;
+        this.author = author;
+        this.genres = genres;
         this.url = url;
     }
 
@@ -67,7 +64,7 @@ public class BookDTO implements Serializable {
         this.publicationDate = publicationDate;
     }
 
-    public int getPageCount() {
+    public Integer getPageCount() {
         return pageCount;
     }
 
@@ -91,20 +88,20 @@ public class BookDTO implements Serializable {
         this.price = price;
     }
 
-    public Author getAuthor() {
+    public UserDTO getAuthor() {
         return author;
     }
 
-    public void setAuthor(Author author) {
+    public void setAuthor(UserDTO author) {
         this.author = author;
     }
 
-    public Set<GenreDTO> getGenre() {
-        return genre;
+    public Set<GenreDTO> getGenres() {
+        return genres;
     }
 
-    public void setGenre(Set<GenreDTO> genre) {
-        this.genre = genre;
+    public void setGenres(Set<GenreDTO> genres) {
+        this.genres = genres;
     }
 
     public String getUrl() {

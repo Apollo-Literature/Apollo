@@ -15,31 +15,21 @@ import java.util.Set;
 public class Book {
 
     @Id
-    @SequenceGenerator(
-            name = "book_id_seq",
-            sequenceName = "book_id_seq",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "book_id_seq"
-    )
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "book_id_seq")
+    @SequenceGenerator(name = "book_id_seq", sequenceName = "book_id_seq", allocationSize = 1)
     private Long bookId;
 
     private String title;
     private String description;
-
-    @Column(unique = true, nullable = false)
     private String isbn;
-
     private LocalDate publicationDate;
     private int pageCount;
     private String language;
     private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private Author author;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -55,7 +45,7 @@ public class Book {
     private String url;
 
     public Book(String title, String description, String isbn, LocalDate publicationDate, int pageCount,
-                String language, BigDecimal price, Author author, Set<Genre> genres, List<Review> reviews, String url) {
+                String language, BigDecimal price, User user, Set<Genre> genres, List<Review> reviews, String url) {
         this.title = title;
         this.description = description;
         this.isbn = isbn;
@@ -63,7 +53,7 @@ public class Book {
         this.pageCount = pageCount;
         this.language = language;
         this.price = price;
-        this.author = author;
+        this.user = user;
         this.genres = genres;
         this.reviews = reviews;
         this.url = url;
@@ -133,12 +123,12 @@ public class Book {
         this.price = price;
     }
 
-    public Author getAuthor() {
-        return author;
+    public User getUser() {
+        return user;
     }
 
-    public void setAuthor(Author author) {
-        this.author = author;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Set<Genre> getGenres() {

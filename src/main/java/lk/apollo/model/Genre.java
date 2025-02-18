@@ -1,9 +1,7 @@
 package lk.apollo.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.util.Set;
 

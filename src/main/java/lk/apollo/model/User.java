@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -23,11 +24,9 @@ public class User {
     )
     private Long userId;
 
-    private String firstName;
-    private String lastName;
+    private String name;
     private String email;
     private LocalDate birthDate;
-    private String nationality;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -37,28 +36,21 @@ public class User {
     )
     private Set<Role> roles;
 
-    public User(String firstName, String lastName, String email, LocalDate birthDate, String nationality) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+
+    // Constructor with roles
+    public User(String name, String email, LocalDate birthDate, Set<Role> roles) {
+        this.name = name;
         this.email = email;
         this.birthDate = birthDate;
-        this.nationality = nationality;
+        this.roles = roles != null ? roles : new HashSet<>(); // Avoids null pointer issues
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setName(String lastName) {
+        this.name = lastName;
     }
 
     public String getEmail() {
@@ -75,14 +67,6 @@ public class User {
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
-    }
-
-    public String getNationality() {
-        return nationality;
-    }
-
-    public void setNationality(String nationality) {
-        this.nationality = nationality;
     }
 
     public Set<Role> getRoles() {

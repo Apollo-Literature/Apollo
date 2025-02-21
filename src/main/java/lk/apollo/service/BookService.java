@@ -7,6 +7,8 @@ import lk.apollo.model.Genre;
 import lk.apollo.repository.BookRepository;
 import lk.apollo.repository.GenreRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,6 +43,7 @@ public class BookService {
      * @param bookDTO - BookDTO instance
      * @return BookDTO instance
      */
+    @Transactional // if one method fails in saving to the database the whole method rollsback
     public BookDTO addBook(BookDTO bookDTO) {
         // Fetch the genres from the database
         Set<Genre> genres = bookDTO.getGenres().stream()
@@ -50,7 +53,7 @@ public class BookService {
 
         // Map the BookDTO to a Book entity
         Book book = bookMapper.mapToEntity(bookDTO);
-            book.setGenres(genres);
+        book.setGenres(genres);
 
         // Save the Book entity
         Book savedBook = bookRepository.save(book);

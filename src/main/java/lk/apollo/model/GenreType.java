@@ -1,4 +1,4 @@
-package lk.apollo.model.enums;
+package lk.apollo.model;
 
 public enum GenreType {
     NON_FICTION,

@@ -5,7 +5,8 @@ import lk.apollo.model.Book;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {GenreMapper.class, UserMapper.class})
+//uses = {GenreMapper.class, UserMapper.class}
+@Mapper(componentModel = "spring")
 public interface BookMapper {
 
     /**
@@ -14,8 +15,6 @@ public interface BookMapper {
      * @param book - Book entity
      * @return BookDTO instance
      */
-    @Mapping(source = "user", target = "author")
-    @Mapping(source = "genres", target = "genres")
     BookDTO mapToDTO(Book book);
 
     /**
@@ -24,7 +23,6 @@ public interface BookMapper {
      * @param bookDTO - BookDTO instance
      * @return Book entity
      */
-    @Mapping(source = "author", target = "user")
-    @Mapping(source = "genres", target = "genres")
+    @Mapping(target = "bookId", ignore = true)
     Book mapToEntity(BookDTO bookDTO);
 }

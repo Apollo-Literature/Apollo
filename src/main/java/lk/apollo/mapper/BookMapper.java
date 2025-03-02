@@ -23,6 +23,5 @@ public interface BookMapper {
      * @param bookDTO - BookDTO instance
      * @return Book entity
      */
-    @Mapping(target = "bookId", ignore = true)
     Book mapToEntity(BookDTO bookDTO);
 }

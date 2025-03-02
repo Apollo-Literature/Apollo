@@ -43,6 +43,8 @@ public class BookDTO implements Serializable {
         this.url = url;
     }
 
+    //Getters and Setters
+
     public Long getBookId() {
         return bookId;
     }

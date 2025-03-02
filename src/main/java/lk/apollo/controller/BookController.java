@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+
 //TODO: CORS policy
 @RestController
 @RequestMapping("/books")
@@ -22,6 +24,12 @@ public class BookController {
     public ResponseEntity<List<BookDTO>> getAllBooks() {
         List<BookDTO> books = bookService.getAllBooks();
         return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Optional<BookDTO>> getBookById(@PathVariable Long id) {
+        Optional<BookDTO> book = bookService.getBookById(id);
+        return new ResponseEntity<>(book,  HttpStatus.OK);
     }
 
     @PostMapping("/add-book")

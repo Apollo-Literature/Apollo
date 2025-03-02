@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +33,11 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
+    public Optional<BookDTO> getBookById(Long id) {
+        return bookRepository.findById(id).map(bookMapper::mapToDTO);
+    }
+
+
     /**
      * Add a book | Steps = BookDTO is passed -> Mapped to the book entity -> saved -> mapped back to BookDTO -> Returned
      *
@@ -40,13 +46,10 @@ public class BookService {
      */
     @Transactional // if one method fails in saving to the database the whole method rollsback
     public BookDTO addBook(BookDTO bookDTO) {
-
         // Map the BookDTO to a Book entity
         Book book = bookMapper.mapToEntity(bookDTO);
-
         // Save the Book entity
         Book savedBook = bookRepository.save(book);
-
         // Map back to BookDTO and return
         return bookMapper.mapToDTO(savedBook);
     }

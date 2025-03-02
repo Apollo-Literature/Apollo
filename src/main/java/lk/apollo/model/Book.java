@@ -1,7 +1,6 @@
 package lk.apollo.model;
 
 import jakarta.persistence.*;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -37,6 +36,8 @@ public class Book {
         this.thumbnail = thumbnail;
         this.url = url;
     }
+
+    //Getters and Setters
 
     public Long getBookId() {
         return bookId;

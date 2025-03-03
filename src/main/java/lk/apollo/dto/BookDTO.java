@@ -1,15 +1,11 @@
 package lk.apollo.dto;
 
-import lk.apollo.model.Author;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Set;
 
-//! Cannot have primitive datatypes
-//TODO: NoArgs, AllArgs, Serializable
 public class BookDTO implements Serializable {
+    private Long bookId;
     private String title;
     private String description;
     private String isbn;
@@ -17,11 +13,12 @@ public class BookDTO implements Serializable {
     private Integer pageCount;
     private String language;
     private BigDecimal price;
-    private Author author; // Reference by ID instead of entity
-    private Set<Long> genreIds; // Reference by ID instead of entity
+    private String thumbnail;
     private String url;
 
-    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, Author authorId, Set<Long> genreIds, String url) {
+    public BookDTO() {}
+
+    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, String thumbnail, String url) {
         this.title = title;
         this.description = description;
         this.isbn = isbn;
@@ -29,9 +26,31 @@ public class BookDTO implements Serializable {
         this.pageCount = pageCount;
         this.language = language;
         this.price = price;
-        this.author = authorId;
-        this.genreIds = genreIds;
+        this.thumbnail = thumbnail;
         this.url = url;
+    }
+
+    public BookDTO(Long bookId, String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, String thumbnail, String url) {
+        this.bookId = bookId;
+        this.title = title;
+        this.description = description;
+        this.isbn = isbn;
+        this.publicationDate = publicationDate;
+        this.pageCount = pageCount;
+        this.language = language;
+        this.price = price;
+        this.thumbnail = thumbnail;
+        this.url = url;
+    }
+
+    //Getters and Setters
+
+    public Long getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(Long bookId) {
+        this.bookId = bookId;
     }
 
     public String getTitle() {
@@ -66,7 +85,7 @@ public class BookDTO implements Serializable {
         this.publicationDate = publicationDate;
     }
 
-    public int getPageCount() {
+    public Integer getPageCount() {
         return pageCount;
     }
 
@@ -90,20 +109,12 @@ public class BookDTO implements Serializable {
         this.price = price;
     }
 
-    public Author getAuthor() {
-        return author;
+    public String getThumbnail() {
+        return thumbnail;
     }
 
-    public void setAuthorId(Long authorId) {
-        this.author = authorId;
-    }
-
-    public Set<Long> getGenreIds() {
-        return genreIds;
-    }
-
-    public void setGenreIds(Set<Long> genreIds) {
-        this.genreIds = genreIds;
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 
     public String getUrl() {

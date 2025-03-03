@@ -1,5 +1,4 @@
 package lk.apollo.model;
 
-public class Genre {
-
+public class Role {
 }

@@ -4,6 +4,7 @@ import lk.apollo.dto.BookDTO;
 import lk.apollo.mapper.BookMapper;
 import lk.apollo.model.Book;
 import lk.apollo.repository.BookRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,8 +60,13 @@ public class BookService {
         return bookMapper.mapToDTO(savedBook);
     }
 
+    /**
+     * Method to update a book
+     * @param bookDTO - Updated Information with the ID of the book that needs updating
+     * @return - Updated book information
+     */
     @Transactional
-    public Optional<BookDTO> editBook(BookDTO bookDTO) {
+    public Optional<BookDTO> updateBook(BookDTO bookDTO) {
         if (bookDTO.getBookId() == null) {
             return Optional.empty(); // No ID provided, so we can't update.
         }
@@ -72,7 +78,22 @@ public class BookService {
                 });
     }
 
+    public boolean deleteBook(Long id) {
+        try {
+            bookRepository.deleteById(id);
+            return true;
+        } catch (EmptyResultDataAccessException ex) {
+            return false; // The book with the given id was not found.
+        }
+    }
+
     //! Helper Methods
+
+    /**
+     * Method to update a book with the information from the BookDTO
+     * @param book - Book entity where the information needs to be updated
+     * @param dto - BookDTO instance with updated information
+     */
     private void updateBookFromDTO(Book book, BookDTO dto) {
         if (dto.getTitle() != null) book.setTitle(dto.getTitle());
         if (dto.getDescription() != null) book.setDescription(dto.getDescription());

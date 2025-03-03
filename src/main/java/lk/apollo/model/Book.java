@@ -1,15 +1,10 @@
 package lk.apollo.model;
 
 import jakarta.persistence.*;
-import lk.apollo.dto.GenreDTO;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
 
-@NoArgsConstructor
 @Entity
 @Table(name = "books")
 public class Book {
@@ -18,7 +13,6 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "book_id_seq")
     @SequenceGenerator(name = "book_id_seq", sequenceName = "book_id_seq", allocationSize = 1)
     private Long bookId;
-
     private String title;
     private String description;
     private String isbn;
@@ -26,26 +20,12 @@ public class Book {
     private int pageCount;
     private String language;
     private BigDecimal price;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "books_genres",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id")
-    )
-    private Set<Genre> genres;
-
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Review> reviews;
-
+    private String thumbnail;
     private String url;
 
-    public Book(String title, String description, String isbn, LocalDate publicationDate, int pageCount,
-                String language, BigDecimal price, User user, Set<Genre> genres, List<Review> reviews, String url) {
+    public Book() {}
+
+    public Book(String title, String description, String isbn, LocalDate publicationDate, int pageCount, String language, BigDecimal price, String thumbnail, String url) {
         this.title = title;
         this.description = description;
         this.isbn = isbn;
@@ -53,11 +33,11 @@ public class Book {
         this.pageCount = pageCount;
         this.language = language;
         this.price = price;
-        this.user = user;
-        this.genres = genres;
-        this.reviews = reviews;
+        this.thumbnail = thumbnail;
         this.url = url;
     }
+
+    //Getters and Setters
 
     public Long getBookId() {
         return bookId;
@@ -123,28 +103,12 @@ public class Book {
         this.price = price;
     }
 
-    public User getUser() {
-        return user;
+    public String getThumbnail() {
+        return thumbnail;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Set<Genre> getGenres() {
-        return genres;
-    }
-
-    public void setGenres(Set<Genre> genres) {
-        this.genres = genres;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 
     public String getUrl() {

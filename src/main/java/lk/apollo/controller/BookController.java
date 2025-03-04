@@ -1,13 +1,12 @@
 package lk.apollo.controller;
 
-import lk.apollo.service.BookService;
 import lk.apollo.dto.BookDTO;
+import lk.apollo.service.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 //TODO: CORS policy
 @RestController
@@ -39,6 +38,16 @@ public class BookController {
     @GetMapping("/{id}")
     public ResponseEntity<BookDTO> getBookById(@PathVariable Long id) {
         return ResponseEntity.ok(bookService.getBookById(id));
+    }
+
+    /**
+     * Search books by title
+     * @param title
+     * @return - List of BookDTO instances
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<BookDTO>> searchBooks(@RequestParam("q") String title) {
+        return ResponseEntity.ok(bookService.searchBooks(title));
     }
 
     /**

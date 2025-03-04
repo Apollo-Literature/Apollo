@@ -4,6 +4,7 @@ import io.micrometer.common.util.StringUtils;
 import lk.apollo.Exception.BookIdMissingException;
 import lk.apollo.Exception.BookNotFoundException;
 import lk.apollo.Exception.BookNotValidException;
+import lk.apollo.Exception.NoBooksFoundException;
 import lk.apollo.dto.BookDTO;
 import lk.apollo.mapper.BookMapper;
 import lk.apollo.model.Book;
@@ -50,6 +51,20 @@ public class BookService {
                 .orElseThrow(() -> new BookNotFoundException());
     }
 
+    /**
+     * Search books by title
+     * @param title
+     * @return - List of BookDTO instances
+     */
+    public List<BookDTO> searchBooks(String title) {
+        List<BookDTO> results = bookRepository.findByTitleContainingIgnoreCase(title).stream()
+                .map(bookMapper::mapToDTO)
+                .collect(Collectors.toList());
+        if (results.isEmpty()) {
+            throw new NoBooksFoundException();
+        }
+        return results;
+    }
 
     /**
      * Add a book | Steps = BookDTO is passed -> Mapped to the book entity -> saved -> mapped back to BookDTO -> Returned
@@ -184,6 +199,11 @@ public class BookService {
         }
     }
 
+    /**
+     * Method to validate ISBN
+     * @param isbn
+     * @return - boolean
+     */
     private boolean isValidISBN(String isbn) {
         // Remove hyphens from the ISBN to get only the digits (and possibly an 'X' for ISBN-10)
         String cleaned = isbn.replaceAll("-", "");
@@ -202,6 +222,11 @@ public class BookService {
         return false;
     }
 
+    /**
+     * Method to validate URL
+     * @param url
+     * @return - boolean
+     */
     private boolean isValidURL(String url) {
         return url.matches("^(https?|ftp)://[^\\s/$.?#].[^\\s]*$");
     }

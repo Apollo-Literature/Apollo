@@ -1,15 +1,18 @@
 package lk.apollo.service;
 
+import io.micrometer.common.util.StringUtils;
 import lk.apollo.dto.BookDTO;
 import lk.apollo.mapper.BookMapper;
 import lk.apollo.model.Book;
 import lk.apollo.repository.BookRepository;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,8 +42,10 @@ public class BookService {
      * @param id - Long id
      * @return - BookDTO instance
      */
-    public Optional<BookDTO> getBookById(Long id) {
-        return bookRepository.findById(id).map(bookMapper::mapToDTO);
+    public BookDTO getBookById(Long id) {
+        return bookRepository.findById(id)
+                .map(bookMapper::mapToDTO)
+                .orElseThrow(() -> new RuntimeException("Book with ID " + id + " not found."));
     }
 
 
@@ -52,6 +57,8 @@ public class BookService {
      */
     @Transactional // if one method fails in saving to the database the whole method rollsback
     public BookDTO addBook(BookDTO bookDTO) {
+        // Validate the BookDTO
+        validateBook(bookDTO);
         // Map the BookDTO to a Book entity
         Book book = bookMapper.mapToEntity(bookDTO);
         // Save the Book entity
@@ -66,25 +73,31 @@ public class BookService {
      * @return - Updated book information
      */
     @Transactional
-    public Optional<BookDTO> updateBook(BookDTO bookDTO) {
+    public BookDTO updateBook(BookDTO bookDTO) {
+        // Validate the BookDTO
+        validateBook(bookDTO);
+
         if (bookDTO.getBookId() == null) {
-            return Optional.empty(); // No ID provided, so we can't update.
+            throw new IllegalArgumentException("Book ID is required for update."); // No ID provided, so we can't update.
         }
 
-        return bookRepository.findById(bookDTO.getBookId())
-                .map(existingBook -> {
-                    updateBookFromDTO(existingBook, bookDTO);
-                    return bookMapper.mapToDTO(bookRepository.save(existingBook));
-                });
+        Book existingBook = bookRepository.findById(bookDTO.getBookId())
+                .orElseThrow(() -> new RuntimeException("Book with ID " + bookDTO.getBookId() + " not found."));
+
+        updateBookFromDTO(existingBook, bookDTO);
+        return bookMapper.mapToDTO(bookRepository.save(existingBook));
     }
 
-    public boolean deleteBook(Long id) {
-        try {
-            bookRepository.deleteById(id);
-            return true;
-        } catch (EmptyResultDataAccessException ex) {
-            return false; // The book with the given id was not found.
+    /**
+     * Method to delete a book
+     * @param id
+     * @return - Void
+     */
+    public void deleteBook(Long id) {
+        if (!bookRepository.existsById(id)) {
+            throw new RuntimeException("Book with ID " + id + " not found.");
         }
+        bookRepository.deleteById(id);
     }
 
     //! Helper Methods
@@ -105,4 +118,90 @@ public class BookService {
         if (dto.getThumbnail() != null) book.setThumbnail(dto.getThumbnail());
         if (dto.getUrl() != null) book.setUrl(dto.getUrl());
     }
+
+    /**
+     * Method to validate the BookDTO
+     * @param bookDTO
+     */
+    private void validateBook(BookDTO bookDTO) {
+        // Validate title
+        if (StringUtils.isBlank(bookDTO.getTitle())) {
+            throw new IllegalArgumentException("Title is required.");
+        }
+
+        // Validate description
+        if (StringUtils.isBlank(bookDTO.getDescription())) {
+            throw new IllegalArgumentException("Description is required.");
+        }
+
+        // Validate ISBN
+        if (StringUtils.isBlank(bookDTO.getIsbn())) {
+            throw new IllegalArgumentException("ISBN is required.");
+        }
+        if (!isValidISBN(bookDTO.getIsbn())) {
+            throw new IllegalArgumentException("Invalid ISBN format. Must be 10 or 13 digits.");
+        }
+
+        // Validate publication date (LocalDate)
+        if (bookDTO.getPublicationDate() == null) {
+            throw new IllegalArgumentException("Publication Date is required.");
+        }
+        // Catch invalid date input gracefully
+        try {
+            if (bookDTO.getPublicationDate().isAfter(LocalDate.now())) {
+                throw new IllegalArgumentException("Publication Date cannot be in the future.");
+            }
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid publication date format. Please provide a valid date (yyyy-MM-dd).");
+        }
+
+        // Validate page count
+        if (bookDTO.getPageCount() == null || bookDTO.getPageCount() <= 0) {
+            throw new IllegalArgumentException("Page count must be greater than zero.");
+        }
+
+        // Validate language
+        if (StringUtils.isBlank(bookDTO.getLanguage())) {
+            throw new IllegalArgumentException("Language is required.");
+        }
+
+        // Validate price
+        if (bookDTO.getPrice() == null || bookDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Price must be greater than zero.");
+        }
+
+        // Validate thumbnail URL
+        if (StringUtils.isBlank(bookDTO.getThumbnail()) || !isValidURL(bookDTO.getThumbnail())) {
+            throw new IllegalArgumentException("Invalid thumbnail URL.");
+        }
+
+        // Validate book URL
+        if (StringUtils.isBlank(bookDTO.getUrl()) || !isValidURL(bookDTO.getUrl())) {
+            throw new IllegalArgumentException("Invalid book URL.");
+        }
+    }
+
+    private boolean isValidISBN(String isbn) {
+        // Remove hyphens from the ISBN to get only the digits (and possibly an 'X' for ISBN-10)
+        String cleaned = isbn.replaceAll("-", "");
+
+        // Check if it's ISBN-10: exactly 10 characters and matches 9 digits followed by a digit or X (case-insensitive)
+        if (cleaned.length() == 10) {
+            return cleaned.matches("\\d{9}[\\dXx]");
+        }
+
+        // Check if it's ISBN-13: exactly 13 digits
+        if (cleaned.length() == 13) {
+            return cleaned.matches("\\d{13}");
+        }
+
+        // Otherwise, it's invalid
+        return false;
+    }
+
+
+    private boolean isValidURL(String url) {
+        return url.matches("^(https?|ftp)://[^\\s/$.?#].[^\\s]*$");
+    }
+
 }

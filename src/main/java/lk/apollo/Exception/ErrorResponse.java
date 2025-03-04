@@ -1,10 +1,10 @@
 package lk.apollo.Exception;
 
 
-public class Response {
+public class ErrorResponse {
     private String message;
 
-    public Response(String message) {
+    public ErrorResponse(String message) {
         this.message = message;
     }
 

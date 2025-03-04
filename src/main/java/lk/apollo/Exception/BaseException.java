@@ -2,13 +2,24 @@ package lk.apollo.Exception;
 
 import org.springframework.http.HttpStatus;
 
-public class BaseException extends RuntimeException {
-    private HttpStatus httpStatus;
-    private Response response;
+import java.io.Serializable;
 
-    public BaseException(HttpStatus httpStatus, Response response) {
+/**
+ * Base exception class for all custom exceptions
+ */
+public class BaseException extends RuntimeException implements Serializable {
+    private static final long serialVersionUID = 1L; // Serial version UID for serialization
+    private HttpStatus httpStatus;
+    private ErrorResponse errorResponse;
+
+    /**
+     * Constructor for BaseException
+     * @param httpStatus - Receives the http status from the child class
+     * @param errorResponse - Receives the error response from the child class
+     */
+    public BaseException(HttpStatus httpStatus, ErrorResponse errorResponse) {
         this.httpStatus = httpStatus;
-        this.response = response;
+        this.errorResponse = errorResponse;
     }
 
     public HttpStatus getHttpStatus() {
@@ -19,11 +30,11 @@ public class BaseException extends RuntimeException {
         this.httpStatus = httpStatus;
     }
 
-    public Response getResponse() {
-        return response;
+    public ErrorResponse getResponse() {
+        return errorResponse;
     }
 
-    public void setResponse(Response response) {
-        this.response = response;
+    public void setResponse(ErrorResponse errorResponse) {
+        this.errorResponse = errorResponse;
     }
 }

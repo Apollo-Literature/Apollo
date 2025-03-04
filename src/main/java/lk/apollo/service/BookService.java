@@ -1,6 +1,9 @@
 package lk.apollo.service;
 
 import io.micrometer.common.util.StringUtils;
+import lk.apollo.Exception.BookIdMissingException;
+import lk.apollo.Exception.BookNotFoundException;
+import lk.apollo.Exception.BookNotValidException;
 import lk.apollo.dto.BookDTO;
 import lk.apollo.mapper.BookMapper;
 import lk.apollo.model.Book;
@@ -10,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +47,7 @@ public class BookService {
     public BookDTO getBookById(Long id) {
         return bookRepository.findById(id)
                 .map(bookMapper::mapToDTO)
-                .orElseThrow(() -> new RuntimeException("Book with ID " + id + " not found."));
+                .orElseThrow(() -> new BookNotFoundException());
     }
 
 
@@ -74,15 +76,16 @@ public class BookService {
      */
     @Transactional
     public BookDTO updateBook(BookDTO bookDTO) {
-        // Validate the BookDTO
-        validateBook(bookDTO);
 
         if (bookDTO.getBookId() == null) {
-            throw new IllegalArgumentException("Book ID is required for update."); // No ID provided, so we can't update.
+            throw new BookIdMissingException("Book ID is required to update."); // No ID provided, so we can't update.
         }
 
         Book existingBook = bookRepository.findById(bookDTO.getBookId())
-                .orElseThrow(() -> new RuntimeException("Book with ID " + bookDTO.getBookId() + " not found."));
+                .orElseThrow(() -> new BookNotFoundException());
+
+        // Validate the BookDTO
+        validateBook(bookDTO);
 
         updateBookFromDTO(existingBook, bookDTO);
         return bookMapper.mapToDTO(bookRepository.save(existingBook));
@@ -95,7 +98,7 @@ public class BookService {
      */
     public void deleteBook(Long id) {
         if (!bookRepository.existsById(id)) {
-            throw new RuntimeException("Book with ID " + id + " not found.");
+            throw new BookNotFoundException();
         }
         bookRepository.deleteById(id);
     }
@@ -126,58 +129,58 @@ public class BookService {
     private void validateBook(BookDTO bookDTO) {
         // Validate title
         if (StringUtils.isBlank(bookDTO.getTitle())) {
-            throw new IllegalArgumentException("Title is required.");
+            throw new BookNotValidException("Book title is required.");
         }
 
         // Validate description
         if (StringUtils.isBlank(bookDTO.getDescription())) {
-            throw new IllegalArgumentException("Description is required.");
+            throw new BookNotValidException("Book description is required.");
         }
 
         // Validate ISBN
         if (StringUtils.isBlank(bookDTO.getIsbn())) {
-            throw new IllegalArgumentException("ISBN is required.");
+            throw new BookNotValidException("Book ISBN is required.");
         }
         if (!isValidISBN(bookDTO.getIsbn())) {
-            throw new IllegalArgumentException("Invalid ISBN format. Must be 10 or 13 digits.");
+            throw new BookNotValidException("Invalid ISBN format. Must be 10 or 13 digits.");
         }
 
         // Validate publication date (LocalDate)
         if (bookDTO.getPublicationDate() == null) {
-            throw new IllegalArgumentException("Publication Date is required.");
+            throw new BookNotValidException("Book publication Date is required.");
         }
         // Catch invalid date input gracefully
         try {
             if (bookDTO.getPublicationDate().isAfter(LocalDate.now())) {
-                throw new IllegalArgumentException("Publication Date cannot be in the future.");
+                throw new BookNotValidException("Book publication Date cannot be in the future.");
             }
         } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Invalid publication date format. Please provide a valid date (yyyy-MM-dd).");
+            throw new BookNotValidException("Invalid publication date format. Please provide a valid date (yyyy-MM-dd).");
         }
 
         // Validate page count
         if (bookDTO.getPageCount() == null || bookDTO.getPageCount() <= 0) {
-            throw new IllegalArgumentException("Page count must be greater than zero.");
+            throw new BookNotValidException("Book page count must be greater than zero.");
         }
 
         // Validate language
         if (StringUtils.isBlank(bookDTO.getLanguage())) {
-            throw new IllegalArgumentException("Language is required.");
+            throw new BookNotValidException("Book language is required.");
         }
 
         // Validate price
         if (bookDTO.getPrice() == null || bookDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Price must be greater than zero.");
+            throw new BookNotValidException("Book price must be greater than zero.");
         }
 
         // Validate thumbnail URL
         if (StringUtils.isBlank(bookDTO.getThumbnail()) || !isValidURL(bookDTO.getThumbnail())) {
-            throw new IllegalArgumentException("Invalid thumbnail URL.");
+            throw new BookNotValidException("Invalid thumbnail URL.");
         }
 
         // Validate book URL
         if (StringUtils.isBlank(bookDTO.getUrl()) || !isValidURL(bookDTO.getUrl())) {
-            throw new IllegalArgumentException("Invalid book URL.");
+            throw new BookNotValidException("Invalid book URL.");
         }
     }
 
@@ -198,7 +201,6 @@ public class BookService {
         // Otherwise, it's invalid
         return false;
     }
-
 
     private boolean isValidURL(String url) {
         return url.matches("^(https?|ftp)://[^\\s/$.?#].[^\\s]*$");

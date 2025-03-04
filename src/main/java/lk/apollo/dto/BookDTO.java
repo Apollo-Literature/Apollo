@@ -18,7 +18,17 @@ public class BookDTO implements Serializable {
 
     public BookDTO() {}
 
-    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, String thumbnail, String url) {
+    public BookDTO(
+            String title,
+            String description,
+            String isbn,
+            LocalDate publicationDate,
+            Integer pageCount,
+            String language,
+            BigDecimal price,
+            String thumbnail,
+            String url
+    ) {
         this.title = title;
         this.description = description;
         this.isbn = isbn;
@@ -30,7 +40,18 @@ public class BookDTO implements Serializable {
         this.url = url;
     }
 
-    public BookDTO(Long bookId, String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, String thumbnail, String url) {
+    public BookDTO(
+            Long bookId,
+            String title,
+            String description,
+            String isbn,
+            LocalDate publicationDate,
+            Integer pageCount,
+            String language,
+            BigDecimal price,
+            String thumbnail,
+            String url
+    ) {
         this.bookId = bookId;
         this.title = title;
         this.description = description;

@@ -8,6 +8,7 @@ class ApolloApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// Sanity test to check if the Spring context loads
 	}
 
 }

@@ -25,7 +25,17 @@ public class Book {
 
     public Book() {}
 
-    public Book(String title, String description, String isbn, LocalDate publicationDate, int pageCount, String language, BigDecimal price, String thumbnail, String url) {
+    public Book(
+            String title,
+            String description,
+            String isbn,
+            LocalDate publicationDate,
+            int pageCount,
+            String language,
+            BigDecimal price,
+            String thumbnail,
+            String url
+    ) {
         this.title = title;
         this.description = description;
         this.isbn = isbn;

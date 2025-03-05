@@ -1,20 +1,19 @@
 package lk.apollo.controller;
 
-import lk.apollo.service.BookService;
 import lk.apollo.dto.BookDTO;
+import lk.apollo.service.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 //TODO: CORS policy
 @RestController
 @RequestMapping("/books")
 public class BookController {
 
-    private BookService bookService;
+    private final BookService bookService;
 
     public BookController(BookService bookService) {
         this.bookService = bookService;
@@ -37,9 +36,18 @@ public class BookController {
      * @return - BookDTO instance
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<BookDTO>> getBookById(@PathVariable Long id) {
-        Optional<BookDTO> book = bookService.getBookById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(book);
+    public ResponseEntity<BookDTO> getBookById(@PathVariable Long id) {
+        return ResponseEntity.ok(bookService.getBookById(id));
+    }
+
+    /**
+     * Search books by title
+     * @param title
+     * @return - List of BookDTO instances
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<BookDTO>> searchBooks(@RequestParam("q") String title) {
+        return ResponseEntity.ok(bookService.searchBooks(title));
     }
 
     /**
@@ -49,8 +57,9 @@ public class BookController {
      */
     @PostMapping("/add-book")
     public ResponseEntity<BookDTO> addBook(@RequestBody BookDTO bookDTO) {
-        BookDTO newBook = bookService.addBook(bookDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newBook);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(bookService.addBook(bookDTO));
     }
 
     /**
@@ -60,8 +69,7 @@ public class BookController {
      */
     @PutMapping("/update-book")
     public ResponseEntity<BookDTO> updateBook(@RequestBody BookDTO bookDTO) {
-        Optional<BookDTO> updatedBookDTO = bookService.updateBook(bookDTO);
-        return updatedBookDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(bookService.updateBook(bookDTO));
     }
 
     /**
@@ -70,12 +78,8 @@ public class BookController {
      * @return - Void
      */
     @DeleteMapping("/delete-book/{id}")
-    public ResponseEntity<String> deleteBook(@PathVariable Long id) {
-        boolean deleted = bookService.deleteBook(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();// 204 No Content typically implies an empty response body.
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found.");
-        }
+    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+        return ResponseEntity.noContent().build();
     }
 }

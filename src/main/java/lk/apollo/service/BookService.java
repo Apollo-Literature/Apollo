@@ -9,6 +9,8 @@ import lk.apollo.dto.BookDTO;
 import lk.apollo.mapper.BookMapper;
 import lk.apollo.model.Book;
 import lk.apollo.repository.BookRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 @Service
 public class BookService {
 
+    private static final Logger log = LoggerFactory.getLogger(BookService.class);
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
 
@@ -35,9 +38,11 @@ public class BookService {
      * @return List of BookDTO instances
      */
     public List<BookDTO> getAllBooks() {
-        return bookRepository.findAll().stream()
-                .map(bookMapper::mapToDTO) // Use BookMapper to map to DTO
+        List<BookDTO> books = bookRepository.findAll().stream()
+                .map(bookMapper::mapToDTO)
                 .collect(Collectors.toList());
+        log.info("Completed getAllBooks(). Fetched {} books.", books.size());
+        return books;
     }
 
     /**
@@ -46,9 +51,11 @@ public class BookService {
      * @return - BookDTO instance
      */
     public BookDTO getBookById(Long id) {
-        return bookRepository.findById(id)
+        BookDTO book = bookRepository.findById(id)
                 .map(bookMapper::mapToDTO)
                 .orElseThrow(() -> new BookNotFoundException());
+        log.info("Completed getBookById(). Fetched book with ID: {}", id);
+        return book;
     }
 
     /**
@@ -63,6 +70,7 @@ public class BookService {
         if (results.isEmpty()) {
             throw new NoBooksFoundException();
         }
+        log.info("Completed searchBooks(). Found {} books with title: {}", results.size(), title);
         return results;
     }
 
@@ -80,6 +88,7 @@ public class BookService {
         Book book = bookMapper.mapToEntity(bookDTO);
         // Save the Book entity
         Book savedBook = bookRepository.save(book);
+        log.info("Completed addBook(). Added book with ID: {}", savedBook.getBookId());
         // Map back to BookDTO and return
         return bookMapper.mapToDTO(savedBook);
     }
@@ -103,7 +112,12 @@ public class BookService {
         validateBook(bookDTO);
 
         updateBookFromDTO(existingBook, bookDTO);
-        return bookMapper.mapToDTO(bookRepository.save(existingBook));
+
+        BookDTO updatedBook = bookMapper.mapToDTO(bookRepository.save(existingBook));
+
+        log.info("Completed updateBook(). Updated book with ID: {}", existingBook.getBookId());
+
+        return updatedBook;
     }
 
     /**
@@ -116,6 +130,8 @@ public class BookService {
             throw new BookNotFoundException();
         }
         bookRepository.deleteById(id);
+
+        log.info("Completed deleteBook(). Deleted book with ID: {}", id);
     }
 
     //! Helper Methods

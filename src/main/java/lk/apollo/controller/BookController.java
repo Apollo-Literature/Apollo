@@ -2,8 +2,6 @@ package lk.apollo.controller;
 
 import lk.apollo.dto.BookDTO;
 import lk.apollo.service.BookService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +24,7 @@ public class BookController {
      *
      * @return List of BookDTO instances
      */
-    @GetMapping("/all-books")
+    @GetMapping("/all")
     public ResponseEntity<List<BookDTO>> getAllBooks() {
         List<BookDTO> books = bookService.getAllBooks();
         return ResponseEntity.status(HttpStatus.OK).body(books);

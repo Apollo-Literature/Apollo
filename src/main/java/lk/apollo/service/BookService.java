@@ -1,10 +1,10 @@
 package lk.apollo.service;
 
 import io.micrometer.common.util.StringUtils;
-import lk.apollo.Exception.BookIdMissingException;
-import lk.apollo.Exception.BookNotFoundException;
-import lk.apollo.Exception.BookNotValidException;
-import lk.apollo.Exception.NoBooksFoundException;
+import lk.apollo.exception.book.BookIdMissingException;
+import lk.apollo.exception.book.BookNotFoundException;
+import lk.apollo.exception.book.BookNotValidException;
+import lk.apollo.exception.book.NoBooksFoundException;
 import lk.apollo.dto.BookDTO;
 import lk.apollo.mapper.BookMapper;
 import lk.apollo.model.Book;

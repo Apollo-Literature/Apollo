@@ -1,7 +1,7 @@
 package lk.apollo;
 
-import lk.apollo.Exception.BookNotFoundException;
-import lk.apollo.Exception.BookNotValidException;
+import lk.apollo.exception.book.BookNotFoundException;
+import lk.apollo.exception.book.BookNotValidException;
 import lk.apollo.dto.BookDTO;
 import lk.apollo.mapper.BookMapper;
 import lk.apollo.model.Book;

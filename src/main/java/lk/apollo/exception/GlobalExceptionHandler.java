@@ -1,4 +1,4 @@
-package lk.apollo.Exception;
+package lk.apollo.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

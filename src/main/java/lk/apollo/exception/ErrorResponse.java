@@ -1,4 +1,4 @@
-package lk.apollo.Exception;
+package lk.apollo.exception;
 
 
 public class ErrorResponse {

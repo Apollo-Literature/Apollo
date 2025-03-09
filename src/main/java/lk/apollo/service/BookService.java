@@ -37,6 +37,7 @@ public class BookService {
      *
      * @return List of BookDTO instances
      */
+    @Transactional
     public List<BookDTO> getAllBooks() {
         List<BookDTO> books = bookRepository.findAll().stream()
                 .map(bookMapper::mapToDTO)
@@ -50,6 +51,7 @@ public class BookService {
      * @param id - Long id
      * @return - BookDTO instance
      */
+    @Transactional
     public BookDTO getBookById(Long id) {
         BookDTO book = bookRepository.findById(id)
                 .map(bookMapper::mapToDTO)
@@ -63,6 +65,7 @@ public class BookService {
      * @param title
      * @return - List of BookDTO instances
      */
+   @Transactional
     public List<BookDTO> searchBooks(String title) {
         List<BookDTO> results = bookRepository.findByTitleContainingIgnoreCase(title).stream()
                 .map(bookMapper::mapToDTO)

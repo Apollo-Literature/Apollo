@@ -2,6 +2,8 @@ package lk.apollo.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -14,23 +16,26 @@ public class User {
 
     private String firstName;
     private String lastName;
+    @Column(nullable = false, unique = true)
     private String email;
     private String password;
     private LocalDate dateOfBirth;
-    private String role; // Example: "USER", "ADMIN"
+    @Column(nullable = false)
+    private String supabaseUserId;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>(); // Example: "USER", "ADMIN"
     private Boolean isActive;
 
-    public User() {}
 
-    public User(String firstName, String lastName, String email, String password, LocalDate dateOfBirth, String role, Boolean isActive) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.dateOfBirth = dateOfBirth;
-        this.role = role;
-        this.isActive = isActive;
-    }
+
+
+    //Constructors
+    public User() {}
 
     // Getters and Setters
 
@@ -82,12 +87,20 @@ public class User {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getRole() {
-        return role;
+    public String getSupabaseUserId() {
+        return supabaseUserId;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setSupabaseUserId(String supabaseUserId) {
+        this.supabaseUserId = supabaseUserId;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     public Boolean getIsActive() {

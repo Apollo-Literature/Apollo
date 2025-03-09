@@ -1,6 +1,8 @@
 package lk.apollo.security;
 
 import io.jsonwebtoken.Claims;
+import lk.apollo.exception.ResourceNotFoundException;
+import lk.apollo.exception.user.AccessDeniedException;
 import lk.apollo.model.User;
 import lk.apollo.model.Role;
 import lk.apollo.model.Permission;
@@ -40,13 +42,13 @@ public class SupabaseAuthenticationProvider implements AuthenticationProvider {
         Optional<User> userOptional = userRepository.findBySupabaseUserId(supabaseUserId);
 
         if (userOptional.isEmpty()) {
-            throw new RuntimeException("User not found in the system");
+            throw new ResourceNotFoundException("User not found in the system");
         }
 
         User user = userOptional.get();
 
         if (!user.getIsActive()) {
-            throw new RuntimeException("User account is deactivated");
+            throw new AccessDeniedException("User account is deactivated");
         }
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();

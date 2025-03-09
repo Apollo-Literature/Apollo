@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
  * The type Auth controller.
  */
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
 
@@ -38,8 +38,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> register(@RequestBody UserDTO userDTO, @RequestParam String password) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(userDTO, password));
+    public ResponseEntity<UserDTO> register(@RequestBody UserDTO userDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(userDTO));
     }
 
     /**

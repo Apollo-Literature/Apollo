@@ -13,7 +13,7 @@ import java.util.List;
  * The type User controller.
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
 
@@ -62,7 +62,7 @@ public class UserController {
      * @param userDTO the user dto
      * @return the response entity
      */
-    @PreAuthorize("hasAuthority('ADMIN') or @securityService.isCurrentUser(#userDTO.id)")
+    @PreAuthorize("hasAuthority('ADMIN') or @securityService.isCurrentUser(#userDTO.userId)")
     @PutMapping
     public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.updateUser(userDTO));

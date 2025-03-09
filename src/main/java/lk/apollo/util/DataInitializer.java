@@ -42,7 +42,6 @@ public class DataInitializer {
             if (!permissionRepository.existsByName(name)) {
                 Permission permission = new Permission();
                 permission.setName(name);
-                permission.setDescription("Permission to " + name.toLowerCase());
                 permissionRepository.save(permission);
             }
         }
@@ -53,7 +52,6 @@ public class DataInitializer {
         if (!roleRepository.existsByName(RoleEnum.ADMIN.name())) {
             Role adminRole = new Role();
             adminRole.setName(RoleEnum.ADMIN.name());
-            adminRole.setDescription("Administrator with full access");
 
             Set<Permission> adminPermissions = new HashSet<>(permissionRepository.findAll());
             adminRole.setPermissions(adminPermissions);
@@ -65,7 +63,6 @@ public class DataInitializer {
         if (!roleRepository.existsByName(RoleEnum.PUBLISHER.name())) {
             Role publisherRole = new Role();
             publisherRole.setName(RoleEnum.PUBLISHER.name());
-            publisherRole.setDescription("Publisher with permissions to manage books");
 
             Set<Permission> publisherPermissions = new HashSet<>();
             permissionRepository.findByName(Constants.PERM_READ).ifPresent(publisherPermissions::add);
@@ -80,7 +77,6 @@ public class DataInitializer {
         if (!roleRepository.existsByName(RoleEnum.READER.name())) {
             Role readerRole = new Role();
             readerRole.setName(RoleEnum.READER.name());
-            readerRole.setDescription("Reader with read-only access");
 
             Set<Permission> readerPermissions = new HashSet<>();
             permissionRepository.findByName(Constants.PERM_READ).ifPresent(readerPermissions::add);

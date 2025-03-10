@@ -125,7 +125,8 @@ public class UserService {
         User existingUser = userRepository.findById(userDTO.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userDTO.getUserId()));
 
-        userMapper.updateUserFromDto(userDTO, existingUser);
+        // Use the new mapper method that ignores email updates
+        userMapper.updateUserFromDtoIgnoreEmail(userDTO, existingUser);
         User savedUser = userRepository.save(existingUser);
         return userMapper.toDto(savedUser);
     }

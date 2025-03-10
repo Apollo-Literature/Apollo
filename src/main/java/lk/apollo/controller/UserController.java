@@ -2,6 +2,7 @@ package lk.apollo.controller;
 
 import lk.apollo.dto.UserDTO;
 import lk.apollo.service.UserService;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(UserController.class);
 
     /**
      * Instantiates a new User controller.
@@ -63,8 +65,9 @@ public class UserController {
      * @return the response entity
      */
     @PreAuthorize("hasAuthority('ADMIN') or @securityService.isCurrentUser(#userDTO.userId)")
-    @PutMapping
+    @PutMapping("/update-user")
     public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO) {
+        log.info("Updating user with ID: {}", userDTO.getUserId());
         return ResponseEntity.ok(userService.updateUser(userDTO));
     }
 
@@ -74,7 +77,7 @@ public class UserController {
      * @param id the id
      * @return the response entity
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') or @securityService.isCurrentUser(#id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);

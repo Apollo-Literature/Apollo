@@ -2,6 +2,7 @@ package lk.apollo.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Set;
 
 public class UserDTO implements Serializable {
     private Long userId;
@@ -10,31 +11,12 @@ public class UserDTO implements Serializable {
     private String email;
     private String password;
     private LocalDate dateOfBirth;
-    private String role; // Example: "USER", "ADMIN"
+    private String supabaseUserId;
+    private Set<RoleDTO> roles; // Example: "USER", "ADMIN"
     private Boolean isActive;
 
     public UserDTO() {}
 
-    public UserDTO(String firstName, String lastName, String email, String password, LocalDate dateOfBirth, String role, Boolean isActive) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.dateOfBirth = dateOfBirth;
-        this.role = role;
-        this.isActive = isActive;
-    }
-
-    public UserDTO(Long userId, String firstName, String lastName, String email, String password, LocalDate dateOfBirth, String role, Boolean isActive) {
-        this.userId = userId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.dateOfBirth = dateOfBirth;
-        this.role = role;
-        this.isActive = isActive;
-    }
 
     // Getters and Setters
     public Long getUserId() {
@@ -85,12 +67,20 @@ public class UserDTO implements Serializable {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getRole() {
-        return role;
+    public String getSupabaseUserId() {
+        return supabaseUserId;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setSupabaseUserId(String supabaseUserId) {
+        this.supabaseUserId = supabaseUserId;
+    }
+
+    public Set<RoleDTO> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleDTO> roles) {
+        this.roles = roles;
     }
 
     public Boolean getIsActive() {

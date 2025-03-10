@@ -1,4 +1,4 @@
-package lk.apollo.Exception;
+package lk.apollo.exception;
 
 import org.springframework.http.HttpStatus;
 

@@ -2,10 +2,9 @@ package lk.apollo.controller;
 
 import lk.apollo.dto.BookDTO;
 import lk.apollo.service.BookService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +25,7 @@ public class BookController {
      *
      * @return List of BookDTO instances
      */
-    @GetMapping("/all-books")
+    @GetMapping("/all")
     public ResponseEntity<List<BookDTO>> getAllBooks() {
         List<BookDTO> books = bookService.getAllBooks();
         return ResponseEntity.status(HttpStatus.OK).body(books);
@@ -57,6 +56,7 @@ public class BookController {
      * @param bookDTO
      * @return - BookDTO instance
      */
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('PUBLISHER')")
     @PostMapping("/add-book")
     public ResponseEntity<BookDTO> addBook(@RequestBody BookDTO bookDTO) {
         return ResponseEntity
@@ -69,6 +69,7 @@ public class BookController {
      * @param bookDTO
      * @return - BookDTO instance
      */
+   @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('PUBLISHER')")
     @PutMapping("/update-book")
     public ResponseEntity<BookDTO> updateBook(@RequestBody BookDTO bookDTO) {
         return ResponseEntity.ok(bookService.updateBook(bookDTO));
@@ -79,6 +80,7 @@ public class BookController {
      * @param id
      * @return - Void
      */
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('PUBLISHER')")
     @DeleteMapping("/delete-book/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);

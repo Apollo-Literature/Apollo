@@ -1,5 +1,7 @@
-package lk.apollo.Exception;
+package lk.apollo.exception.book;
 
+import lk.apollo.exception.BaseException;
+import lk.apollo.exception.ErrorResponse;
 import org.springframework.http.HttpStatus;
 
 public class BookNotValidException extends BaseException {

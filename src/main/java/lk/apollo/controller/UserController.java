@@ -2,89 +2,135 @@ package lk.apollo.controller;
 
 import lk.apollo.dto.UserDTO;
 import lk.apollo.service.UserService;
+import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * The type User controller.
+ */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController {
-
     private final UserService userService;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(UserController.class);
 
+    /**
+     * Instantiates a new User controller.
+     *
+     * @param userService the user service
+     */
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
+
     /**
-     * Get all users
-     * @return List of UserDTO
+     * Gets all users.
+     *
+     * @return the all users
      */
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    /**
-     * Get user by ID
-     * @param id - Long id
-     * @return UserDTO
-     */
+    @PreAuthorize("hasAuthority('ADMIN') or @securityService.isCurrentUser(#id)")
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        return userService.getUserById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     /**
-     * Get user by email
-     * @param email - String email
-     * @return UserDTO
+     * Create user response entity.
+     *
+     * @param userDTO the user dto
+     * @return the response entity
      */
-    @GetMapping("/email/{email}")
-    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
-        return userService.getUserByEmail(email)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Add a new user
-     * @param userDTO - UserDTO instance
-     * @return UserDTO
-     */
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
-    public ResponseEntity<UserDTO> addUser(@RequestBody UserDTO userDTO) {
-        UserDTO createdUser = userService.addUser(userDTO);
-        return ResponseEntity.ok(createdUser);
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userDTO));
     }
 
     /**
-     * Update an existing user
-     * @param id - Long user ID
-     * @param userDTO - Updated user details
-     * @return Updated UserDTO
+     * Update user response entity.
+     *
+     * @param userDTO the user dto
+     * @return the response entity
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
-        userDTO.setUserId(id);
-        return userService.updateUser(userDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PreAuthorize("hasAuthority('ADMIN') or @securityService.isCurrentUser(#userDTO.userId)")
+    @PutMapping("/update-user")
+    public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO) {
+        log.info("Updating user with ID: {}", userDTO.getUserId());
+        return ResponseEntity.ok(userService.updateUser(userDTO));
     }
 
     /**
-     * Delete a user
-     * @param id - Long id
-     * @return ResponseEntity with status
+     * Delete user response entity.
+     *
+     * @param id the id
+     * @return the response entity
      */
+    @PreAuthorize("hasAuthority('ADMIN') or @securityService.isCurrentUser(#id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        return userService.deleteUser(id)
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Deactivate user response entity.
+     *
+     * @param id the id
+     * @return the response entity
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/{id}/deactivate")
+    public ResponseEntity<UserDTO> deactivateUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.deactivateUser(id));
+    }
+
+    /**
+     * Activate user response entity.
+     *
+     * @param id the id
+     * @return the response entity
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<UserDTO> activateUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.activateUser(id));
+    }
+
+    /**
+     * Assign role to user response entity.
+     *
+     * @param userId the user id
+     * @param roleId the role id
+     * @return the response entity
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/{userId}/roles/{roleId}")
+    public ResponseEntity<UserDTO> assignRoleToUser(@PathVariable Long userId, @PathVariable Long roleId) {
+        return ResponseEntity.ok(userService.assignRoleToUser(userId, roleId));
+    }
+
+    /**
+     * Remove role from user response entity.
+     *
+     * @param userId the user id
+     * @param roleId the role id
+     * @return the response entity
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping("/{userId}/roles/{roleId}")
+    public ResponseEntity<UserDTO> removeRoleFromUser(@PathVariable Long userId, @PathVariable Long roleId) {
+        return ResponseEntity.ok(userService.removeRoleFromUser(userId, roleId));
     }
 }

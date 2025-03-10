@@ -1,10 +1,10 @@
 package lk.apollo.service;
 
 import io.micrometer.common.util.StringUtils;
-import lk.apollo.Exception.BookIdMissingException;
-import lk.apollo.Exception.BookNotFoundException;
-import lk.apollo.Exception.BookNotValidException;
-import lk.apollo.Exception.NoBooksFoundException;
+import lk.apollo.exception.book.BookIdMissingException;
+import lk.apollo.exception.book.BookNotFoundException;
+import lk.apollo.exception.book.BookNotValidException;
+import lk.apollo.exception.book.NoBooksFoundException;
 import lk.apollo.dto.BookDTO;
 import lk.apollo.mapper.BookMapper;
 import lk.apollo.model.Book;
@@ -37,6 +37,7 @@ public class BookService {
      *
      * @return List of BookDTO instances
      */
+    @Transactional
     public List<BookDTO> getAllBooks() {
         List<BookDTO> books = bookRepository.findAll().stream()
                 .map(bookMapper::mapToDTO)
@@ -50,6 +51,7 @@ public class BookService {
      * @param id - Long id
      * @return - BookDTO instance
      */
+    @Transactional
     public BookDTO getBookById(Long id) {
         BookDTO book = bookRepository.findById(id)
                 .map(bookMapper::mapToDTO)
@@ -63,6 +65,7 @@ public class BookService {
      * @param title
      * @return - List of BookDTO instances
      */
+   @Transactional
     public List<BookDTO> searchBooks(String title) {
         List<BookDTO> results = bookRepository.findByTitleContainingIgnoreCase(title).stream()
                 .map(bookMapper::mapToDTO)

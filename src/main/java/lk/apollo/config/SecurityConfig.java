@@ -40,7 +40,26 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Configure CORS
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Stateless session management
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/books/all", "/books/search", "/books/{id}", "/auth/**").permitAll()  // Permit these endpoints
+                        .requestMatchers(
+                                "/books/all",
+                                "/books/search",
+                                "/books/{id}",
+                                "/auth/**",
+                                "/swagger-ui/**",
+                                "/error",
+                                "/favicon.ico",
+                                "/swagger-resources",
+                                "/swagger-resources/**",
+                                "/configuration/ui",
+                                "/configuration/security",
+                                "/swagger-ui.html",
+                                "/webjars/**",
+                                "/v3/api-docs/**",
+                                "/v2/api-docs/**",
+                                "/api/public/**",
+                                "/api/public/authenticate",
+                                "/actuator/*"
+                                ).permitAll()  // Permit these endpoints
                         .anyRequest().authenticated()  // Require authentication for other endpoints
                 )
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);  // Add custom filter before the authentication filter

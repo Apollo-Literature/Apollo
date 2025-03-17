@@ -145,7 +145,9 @@ public class AuthService {
                 AuthResponseDTO authResponse = new AuthResponseDTO();
                 authResponse.setToken(accessToken);
                 authResponse.setRefreshToken(refreshToken);
-                authResponse.setUser(userMapper.toDto(user));
+                UserDTO userDTO = userMapper.toDto(user);
+                userDTO.setPassword(null); // Ensure password is not included in the response
+                authResponse.setUser(userDTO);
 
                 return authResponse;
             } catch (JwtException e) {
@@ -243,7 +245,10 @@ public class AuthService {
             logger.info("User registered successfully: {}", user.getEmail());
 
             // Return the user as DTO
-            return userMapper.toDto(user);
+            UserDTO responseDTO = userMapper.toDto(user);
+            responseDTO.setPassword(null);
+
+            return responseDTO;
         } catch (HttpClientErrorException e) {
             logger.error("Supabase registration failed: {}", e.getResponseBodyAsString());
             throw new ResourceInvalidException("Registration failed: " + e.getMessage());

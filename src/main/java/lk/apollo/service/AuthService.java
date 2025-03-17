@@ -145,7 +145,9 @@ public class AuthService {
                 AuthResponseDTO authResponse = new AuthResponseDTO();
                 authResponse.setToken(accessToken);
                 authResponse.setRefreshToken(refreshToken);
-                authResponse.setUser(userMapper.toDto(user));
+                UserDTO userDTO = userMapper.toDto(user);
+                userDTO.setPassword(null); // Ensure password is not included in the response
+                authResponse.setUser(userDTO);
 
                 return authResponse;
             } catch (JwtException e) {
@@ -195,7 +197,15 @@ public class AuthService {
                 throw new ResourceInvalidException("Registration failed: Empty response body");
             }
 
-            String supabaseUserId = (String) responseBody.get("id");
+            // Extract user object from response
+            Map<String, Object> userMap = (Map<String, Object>) responseBody.get("user");
+            if (userMap == null) {
+                logger.error("Missing user object in response: {}", responseBody);
+                throw new ResourceInvalidException("Registration failed: Missing user object in response");
+            }
+
+            //Extract Supabase user ID from the user object
+            String supabaseUserId = (String) userMap.get("id");
             if (supabaseUserId == null) {
                 logger.error("Missing user ID in response: {}", responseBody);
                 throw new ResourceInvalidException("Registration failed: Missing user ID in response");
@@ -235,7 +245,10 @@ public class AuthService {
             logger.info("User registered successfully: {}", user.getEmail());
 
             // Return the user as DTO
-            return userMapper.toDto(user);
+            UserDTO responseDTO = userMapper.toDto(user);
+            responseDTO.setPassword(null);
+
+            return responseDTO;
         } catch (HttpClientErrorException e) {
             logger.error("Supabase registration failed: {}", e.getResponseBodyAsString());
             throw new ResourceInvalidException("Registration failed: " + e.getMessage());

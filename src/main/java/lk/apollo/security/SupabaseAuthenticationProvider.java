@@ -19,15 +19,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ * The type Supabase authentication provider.
+ */
 @Component
 public class SupabaseAuthenticationProvider implements AuthenticationProvider {
     private final SupabaseTokenValidator tokenValidator;
     private final UserRepository userRepository;
 
+
+    /**
+     * Instantiates a new Supabase authentication provider.
+     *
+     * @param tokenValidator the token validator
+     * @param userRepository the user repository
+     */
     public SupabaseAuthenticationProvider(SupabaseTokenValidator tokenValidator, UserRepository userRepository) {
         this.tokenValidator = tokenValidator;
         this.userRepository = userRepository;
     }
+
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -35,6 +46,12 @@ public class SupabaseAuthenticationProvider implements AuthenticationProvider {
         return validateToken(token);
     }
 
+    /**
+     * Validate token authentication.
+     *
+     * @param token the token
+     * @return the authentication
+     */
     public Authentication validateToken(String token) {
         Claims claims = tokenValidator.validateToken(token);
         String supabaseUserId = claims.getSubject();

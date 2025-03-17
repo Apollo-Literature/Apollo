@@ -195,7 +195,15 @@ public class AuthService {
                 throw new ResourceInvalidException("Registration failed: Empty response body");
             }
 
-            String supabaseUserId = (String) responseBody.get("id");
+            // Extract user object from response
+            Map<String, Object> userMap = (Map<String, Object>) responseBody.get("user");
+            if (userMap == null) {
+                logger.error("Missing user object in response: {}", responseBody);
+                throw new ResourceInvalidException("Registration failed: Missing user object in response");
+            }
+
+            //Extract Supabase user ID from the user object
+            String supabaseUserId = (String) userMap.get("sub");
             if (supabaseUserId == null) {
                 logger.error("Missing user ID in response: {}", responseBody);
                 throw new ResourceInvalidException("Registration failed: Missing user ID in response");

@@ -203,7 +203,7 @@ public class AuthService {
             }
 
             //Extract Supabase user ID from the user object
-            String supabaseUserId = (String) userMap.get("sub");
+            String supabaseUserId = (String) userMap.get("id");
             if (supabaseUserId == null) {
                 logger.error("Missing user ID in response: {}", responseBody);
                 throw new ResourceInvalidException("Registration failed: Missing user ID in response");

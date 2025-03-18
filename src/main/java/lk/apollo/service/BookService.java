@@ -174,6 +174,11 @@ public class BookService {
             throw new BookNotValidException("Book title is required.");
         }
 
+        // Validate author
+        if (StringUtils.isBlank(bookDTO.getAuthor())) {
+            throw new BookNotValidException("Book author is required.");
+        }
+
         // Validate description
         if (StringUtils.isBlank(bookDTO.getDescription())) {
             throw new BookNotValidException("Book description is required.");

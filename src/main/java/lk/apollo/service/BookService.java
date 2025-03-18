@@ -153,6 +153,7 @@ public class BookService {
      */
     private void updateBookFromDTO(Book book, BookDTO dto) {
         if (dto.getTitle() != null) book.setTitle(dto.getTitle());
+        if (dto.getAuthor() != null) book.setAuthor(dto.getAuthor());
         if (dto.getDescription() != null) book.setDescription(dto.getDescription());
         if (dto.getIsbn() != null) book.setIsbn(dto.getIsbn());
         if (dto.getPublicationDate() != null) book.setPublicationDate(dto.getPublicationDate());

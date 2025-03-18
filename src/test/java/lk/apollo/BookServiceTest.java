@@ -1,8 +1,8 @@
 package lk.apollo;
 
+import lk.apollo.dto.BookDTO;
 import lk.apollo.exception.book.BookNotFoundException;
 import lk.apollo.exception.book.BookNotValidException;
-import lk.apollo.dto.BookDTO;
 import lk.apollo.mapper.BookMapper;
 import lk.apollo.model.Book;
 import lk.apollo.repository.BookRepository;
@@ -13,6 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -97,13 +101,18 @@ class BookServiceTest {
      */
     @Test
     void givenBooksExist_whenGetAllBooks_thenReturnBookList() {
-        // Stub the repository to return a list containing the sample Book.
-        when(bookRepository.findAll()).thenReturn(Arrays.asList(book));
+        Pageable pageable = PageRequest.of(0, 10);
+        // Create a Page containing the sample Book.
+        Page<Book> bookPage = new PageImpl<>(Arrays.asList(book));
+
+        // Stub the repository to return the page containing the sample Book.
+        when(bookRepository.findAll(any(Pageable.class))).thenReturn(bookPage);
         // Stub the mapper to convert the Book to a BookDTO.
         when(bookMapper.mapToDTO(book)).thenReturn(bookDTO);
 
         // Call the service method to retrieve all books.
-        List<BookDTO> books = bookService.getAllBooks();
+        Page<BookDTO> resultPage = bookService.getAllBooks(pageable);
+        List<BookDTO> books = resultPage.getContent();
 
         // Assert the list is not empty.
         assertFalse(books.isEmpty(), "The list of books should not be empty");
@@ -111,27 +120,25 @@ class BookServiceTest {
         assertEquals(1, books.size(), "The list should contain exactly one book");
         // Assert the title of the book matches the expected value.
         assertEquals("Test Book", books.get(0).getTitle(), "The title of the returned book should match the expected value");
-        // Verify that findAll() was called exactly once on the repository.
-        verify(bookRepository, times(1)).findAll();
+        // Verify that findAll() was called exactly once on the repository with a Pageable.
+        verify(bookRepository, times(1)).findAll(any(Pageable.class));
     }
 
-    /**
-     * Test for getAllBooks() when no books exist.
-     * <p>
-     * This test stubs the repository to return an empty list and asserts that the service returns an empty list.
-     */
     @Test
     void givenNoBooksExist_whenGetAllBooks_thenReturnEmptyList() {
-        // Stub the repository to return an empty list.
-        when(bookRepository.findAll()).thenReturn(Collections.emptyList());
+        Pageable pageable = PageRequest.of(0, 10);
+        // Stub the repository to return an empty page.
+        Page<Book> emptyPage = new PageImpl<>(Collections.emptyList());
+        when(bookRepository.findAll(any(Pageable.class))).thenReturn(emptyPage);
 
         // Call the service method.
-        List<BookDTO> books = bookService.getAllBooks();
+        Page<BookDTO> resultPage = bookService.getAllBooks(pageable);
+        List<BookDTO> books = resultPage.getContent();
 
         // Assert that the returned list is empty.
         assertTrue(books.isEmpty(), "The list of books should be empty when no books exist");
         // Verify that findAll() was called exactly once.
-        verify(bookRepository, times(1)).findAll();
+        verify(bookRepository, times(1)).findAll(any(Pageable.class));
     }
 
     /**

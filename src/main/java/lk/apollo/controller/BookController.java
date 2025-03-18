@@ -2,6 +2,8 @@ package lk.apollo.controller;
 
 import lk.apollo.dto.BookDTO;
 import lk.apollo.service.BookService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,14 +24,15 @@ public class BookController {
 
     /**
      * Get all books
-     *
-     * @return List of BookDTO instances
+     * @param pageable
+     * @return - Page of BookDTO instances
      */
     @GetMapping("/all")
-    public ResponseEntity<List<BookDTO>> getAllBooks() {
-        List<BookDTO> books = bookService.getAllBooks();
+    public ResponseEntity<Page<BookDTO>> getAllBooks(Pageable pageable) {
+        Page<BookDTO> books = bookService.getAllBooks(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(books);
     }
+
 
     /**
      * Get book by ID

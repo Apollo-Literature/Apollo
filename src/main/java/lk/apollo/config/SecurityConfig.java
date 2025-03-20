@@ -62,6 +62,7 @@ public class SecurityConfig {
                                 ).permitAll()  // Permit these endpoints
                         .anyRequest().authenticated()  // Require authentication for other endpoints
                 )
+                .authenticationProvider(authenticationProvider) // Register the custom provider
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);  // Add custom filter before the authentication filter
 
 

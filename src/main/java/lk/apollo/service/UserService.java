@@ -24,6 +24,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
+    private final AuthService authService; // CHANGED: Inject AuthService instead of a separate Supabase service
+
 
     /**
      * Instantiates a new User service.
@@ -31,18 +33,18 @@ public class UserService {
      * @param userRepository the user repository
      * @param roleRepository the role repository
      * @param userMapper     the user mapper
+     * @param authService    the auth service
      */
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       UserMapper userMapper,
+                       AuthService authService) { // CHANGED: Added AuthService to constructor
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
+        this.authService = authService;
     }
 
-    /**
-     * Get all users
-     *
-     * @return List of UserDTOs
-     */
     @Transactional(readOnly = true)
     public List<UserDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
@@ -51,7 +53,6 @@ public class UserService {
         }
         return userMapper.toDtoList(users);
     }
-
 
     /**
      * Gets user by id.
@@ -66,6 +67,12 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    /**
+     * Gets user by email.
+     *
+     * @param email the email
+     * @return the user by email
+     */
     @Transactional(readOnly = true)
     public UserDTO getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
@@ -87,7 +94,7 @@ public class UserService {
     }
 
     /**
-     * Create user user dto.
+     * Create user remains unchanged if used for admin purposes.
      *
      * @param userDTO the user dto
      * @return the user dto
@@ -104,48 +111,37 @@ public class UserService {
         if (user.getRoles() == null || user.getRoles().isEmpty()) {
             Role readerRole = roleRepository.findByName("READER")
                     .orElseThrow(() -> new ResourceNotFoundException("Default reader role not found"));
-
             Set<Role> roles = new HashSet<>();
             roles.add(readerRole);
             user.setRoles(roles);
         }
-
         user = userRepository.save(user);
         return userMapper.toDto(user);
     }
 
     /**
-     * Update user user dto.
+     * Update user by delegating to AuthService so that both local and Supabase records are updated.
      *
      * @param userDTO the user dto
      * @return the user dto
      */
     @Transactional
     public UserDTO updateUser(UserDTO userDTO) {
-        User existingUser = userRepository.findById(userDTO.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userDTO.getUserId()));
-
-        // Use the new mapper method that ignores email updates
-        userMapper.updateUserFromDtoIgnoreEmail(userDTO, existingUser);
-        User savedUser = userRepository.save(existingUser);
-        return userMapper.toDto(savedUser);
+        return authService.updateAuthUser(userDTO); // CHANGED: Delegate update operation to AuthService
     }
 
     /**
-     * Delete user.
+     * Delete user by delegating to AuthService so that deletion happens both locally and in Supabase.
      *
      * @param id the id
      */
     @Transactional
     public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new ResourceNotFoundException("User not found with id: " + id);
-        }
-        userRepository.deleteById(id);
+        authService.deleteAuthUser(id); // CHANGED: Delegate deletion operation to AuthService
     }
 
     /**
-     * Deactivate user user dto.
+     * Deactivate user dto.
      *
      * @param id the id
      * @return the user dto
@@ -154,14 +150,13 @@ public class UserService {
     public UserDTO deactivateUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-
         user.setIsActive(false);
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
     }
 
     /**
-     * Activate user user dto.
+     * Activate user dto.
      *
      * @param id the id
      * @return the user dto
@@ -170,7 +165,6 @@ public class UserService {
     public UserDTO activateUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-
         user.setIsActive(true);
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
@@ -187,10 +181,8 @@ public class UserService {
     public UserDTO assignRoleToUser(Long userId, Long roleId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + roleId));
-
         user.getRoles().add(role);
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
@@ -207,15 +199,11 @@ public class UserService {
     public UserDTO removeRoleFromUser(Long userId, Long roleId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + roleId));
-
-        // Prevent removing last role
         if (user.getRoles().size() <= 1) {
             throw new AccessDeniedException("Cannot remove the last role from a user");
         }
-
         user.getRoles().remove(role);
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);

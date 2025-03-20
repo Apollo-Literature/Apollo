@@ -14,7 +14,17 @@ public interface UserMapper {
 
     User toEntity(UserDTO userDTO);
 
-    List<UserDTO> toDtoList(List<User> users);
+    default List<UserDTO> toDtoList(List<User> users) {
+        if (users == null) {
+            return null;
+        }
+
+        List<UserDTO> dtos = new java.util.ArrayList<>(users.size());
+        for (User user : users) {
+            dtos.add(toDto(user));
+        }
+        return dtos;
+    }
 
     void updateUserFromDto(UserDTO userDTO, @MappingTarget User user);
 
@@ -24,4 +34,8 @@ public interface UserMapper {
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "isActive", ignore = true)
     void updateUserFromDtoIgnoreEmail(UserDTO userDTO, @MappingTarget User user);
+
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "supabaseUserId", ignore = true)
+    UserDTO toDtoWithoutSensitiveFields(User user);
 }

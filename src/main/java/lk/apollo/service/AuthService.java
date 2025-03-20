@@ -21,20 +21,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * The type Auth service.
- */
 @Service
 public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
@@ -51,21 +50,11 @@ public class AuthService {
     @Value("${supabase.api-key}")
     private String supabaseApiKey;
 
-    /**
-     * Instantiates a new Auth service.
-     *
-     * @param userRepository the user repository
-     * @param roleRepository the role repository
-     * @param userMapper     the user mapper
-     * @param tokenValidator the token validator
-     * @param restTemplate   the rest template
-     */
-    public AuthService(
-            UserRepository userRepository,
-            RoleRepository roleRepository,
-            UserMapper userMapper,
-            SupabaseTokenValidator tokenValidator,
-            RestTemplate restTemplate) {
+    public AuthService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       UserMapper userMapper,
+                       SupabaseTokenValidator tokenValidator,
+                       RestTemplate restTemplate) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
@@ -74,10 +63,7 @@ public class AuthService {
     }
 
     /**
-     * Authenticate user auth response dto.
-     *
-     * @param authRequest the auth request
-     * @return the auth response dto
+     * Authenticate user by verifying credentials locally and via Supabase.
      */
     @Transactional
     public AuthResponseDTO authenticateUser(AuthRequestDTO authRequest) {
@@ -85,10 +71,10 @@ public class AuthService {
         User user = userRepository.findByEmail(authRequest.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // Verify the password by comparing the provided password with the stored hashed password
+        // Verify the password using BCrypt
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
-            throw new ResourceInvalidException("Invalid credentials"); // Password doesn't match
+            throw new ResourceInvalidException("Invalid credentials");
         }
 
         try {
@@ -97,18 +83,16 @@ public class AuthService {
             headers.set("apikey", supabaseApiKey);
             headers.set("Content-Type", "application/json");
 
-            // Create the request body with user credentials
+            // Prepare request body with user credentials
             Map<String, String> requestBody = Map.of(
                     "email", authRequest.getEmail(),
                     "password", authRequest.getPassword()
             );
 
-            // Combine headers and body into a single HTTP entity
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestBody, headers);
 
             // Construct the Supabase authentication URL for password-based login
             String authUrl = supabaseUrl + "/auth/v1/token?grant_type=password";
-
             logger.debug("Sending authentication request to Supabase: {}", authUrl);
 
             // Send POST request to Supabase authentication endpoint
@@ -119,16 +103,13 @@ public class AuthService {
                     Map.class
             );
 
-            // Extract authentication information from the response
             Map<String, Object> responseBody = response.getBody();
-
             if (responseBody == null) {
                 throw new ResourceInvalidException("Authentication failed: Empty response body");
             }
 
             String accessToken = (String) responseBody.get("access_token");
             String refreshToken = (String) responseBody.get("refresh_token");
-
             if (accessToken == null || refreshToken == null) {
                 logger.error("Missing tokens in response: {}", responseBody);
                 throw new ResourceInvalidException("Authentication failed: Missing tokens in response");
@@ -141,14 +122,11 @@ public class AuthService {
                 String supabaseUserId = claims.getSubject();
                 logger.debug("Token validated successfully for user ID: {}", supabaseUserId);
 
-                // Set up the response DTO
                 AuthResponseDTO authResponse = new AuthResponseDTO();
                 authResponse.setToken(accessToken);
                 authResponse.setRefreshToken(refreshToken);
-                UserDTO userDTO = userMapper.toDto(user);
-                userDTO.setPassword(null); // Ensure password is not included in the response
+                UserDTO userDTO = userMapper.toDtoWithoutSensitiveFields(user);
                 authResponse.setUser(userDTO);
-
                 return authResponse;
             } catch (JwtException e) {
                 logger.error("JWT validation failed: {}", e.getMessage());
@@ -163,9 +141,12 @@ public class AuthService {
         }
     }
 
+    /**
+     * Register a new user by signing up with Supabase and saving locally.
+     */
     @Transactional
     public UserDTO registerUser(UserDTO userDTO) {
-        // Hash the password before saving it
+        // Hash the provided password before saving
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String hashedPassword = passwordEncoder.encode(userDTO.getPassword());
 
@@ -181,7 +162,6 @@ public class AuthService {
             );
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-
             String signupUrl = supabaseUrl + "/auth/v1/signup";
             logger.debug("Sending signup request to Supabase: {}", signupUrl);
 
@@ -197,21 +177,19 @@ public class AuthService {
                 throw new ResourceInvalidException("Registration failed: Empty response body");
             }
 
-            // Extract user object from response
+            // Extract the Supabase user ID from the response
             Map<String, Object> userMap = (Map<String, Object>) responseBody.get("user");
             if (userMap == null) {
                 logger.error("Missing user object in response: {}", responseBody);
                 throw new ResourceInvalidException("Registration failed: Missing user object in response");
             }
-
-            //Extract Supabase user ID from the user object
             String supabaseUserId = (String) userMap.get("id");
             if (supabaseUserId == null) {
                 logger.error("Missing user ID in response: {}", responseBody);
                 throw new ResourceInvalidException("Registration failed: Missing user ID in response");
             }
 
-            // Create User entity with additional details
+            // Create local User entity
             User user = new User();
             user.setFirstName(userDTO.getFirstName());
             user.setLastName(userDTO.getLastName());
@@ -225,12 +203,10 @@ public class AuthService {
             if (userDTO.getRoles() == null || userDTO.getRoles().isEmpty()) {
                 Role readerRole = roleRepository.findByName(RoleEnum.READER.name())
                         .orElseThrow(() -> new RuntimeException("Default reader role not found"));
-
                 Set<Role> roles = new HashSet<>();
                 roles.add(readerRole);
                 user.setRoles(roles);
             } else {
-                // If roles are provided in the DTO, map them
                 Set<Role> roles = new HashSet<>();
                 for (RoleDTO roleDTO : userDTO.getRoles()) {
                     Role role = roleRepository.findByName(roleDTO.getName())
@@ -240,14 +216,11 @@ public class AuthService {
                 user.setRoles(roles);
             }
 
-            // Save the user to the database
+            // Save the user locally
             user = userRepository.save(user);
             logger.info("User registered successfully: {}", user.getEmail());
 
-            // Return the user as DTO
-            UserDTO responseDTO = userMapper.toDto(user);
-            responseDTO.setPassword(null);
-
+            UserDTO responseDTO = userMapper.toDtoWithoutSensitiveFields(user);
             return responseDTO;
         } catch (HttpClientErrorException e) {
             logger.error("Supabase registration failed: {}", e.getResponseBodyAsString());
@@ -259,10 +232,7 @@ public class AuthService {
     }
 
     /**
-     * Refresh token auth response dto.
-     *
-     * @param refreshToken the refresh token
-     * @return the auth response dto
+     * Refresh the authentication token using Supabase.
      */
     public AuthResponseDTO refreshToken(String refreshToken) {
         try {
@@ -270,10 +240,7 @@ public class AuthService {
             headers.set("apikey", supabaseApiKey);
             headers.set("Content-Type", "application/json");
 
-            Map<String, String> requestBody = Map.of(
-                    "refresh_token", refreshToken
-            );
-
+            Map<String, String> requestBody = Map.of("refresh_token", refreshToken);
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestBody, headers);
 
             String refreshUrl = supabaseUrl + "/auth/v1/token?grant_type=refresh_token";
@@ -293,13 +260,11 @@ public class AuthService {
 
             String newAccessToken = (String) responseBody.get("access_token");
             String newRefreshToken = (String) responseBody.get("refresh_token");
-
             if (newAccessToken == null || newRefreshToken == null) {
                 logger.error("Missing tokens in refresh response: {}", responseBody);
                 throw new ResourceInvalidException("Token refresh failed: Missing tokens in response");
             }
 
-            // Validate and extract user information from token
             try {
                 Claims claims = tokenValidator.validateToken(newAccessToken);
                 String supabaseUserId = claims.getSubject();
@@ -311,7 +276,6 @@ public class AuthService {
                 authResponse.setToken(newAccessToken);
                 authResponse.setRefreshToken(newRefreshToken);
                 authResponse.setUser(userMapper.toDto(user));
-
                 return authResponse;
             } catch (JwtException e) {
                 logger.error("JWT validation failed during token refresh: {}", e.getMessage());
@@ -324,5 +288,106 @@ public class AuthService {
             logger.error("Token refresh error", e);
             throw new ResourceInvalidException("Token refresh failed: " + e.getMessage());
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Private Helper Methods (Supabase operations merged from SupabaseAuthService)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Updates a user in Supabase Auth.
+     *
+     * @param supabaseUserId The Supabase user ID.
+     * @param userDTO        The updated user details.
+     */
+    private void updateUserInSupabase(String supabaseUserId, UserDTO userDTO) {
+        String url = UriComponentsBuilder.fromHttpUrl(supabaseUrl)
+                .path("/auth/v1/admin/users/")
+                .path(supabaseUserId)
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("apikey", supabaseApiKey);
+        headers.set("Authorization", "Bearer " + supabaseApiKey); // CHANGED: Added authorization header
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Prepare payload (adjust as necessary)
+        String payload = String.format("{\"email\": \"%s\", \"user_metadata\": {\"full_name\": \"%s\"}}",
+                userDTO.getEmail(), userDTO.getFullName() != null ? userDTO.getFullName() : "");
+        HttpEntity<String> requestEntity = new HttpEntity<>(payload, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("Supabase user {} updated successfully.", supabaseUserId);
+            } else {
+                logger.error("Failed to update Supabase user {}. Response code: {}", supabaseUserId, response.getStatusCode());
+            }
+        } catch (Exception e) {
+            logger.error("Exception while updating Supabase user " + supabaseUserId, e);
+        }
+    }
+
+    /**
+     * Deletes a user from Supabase Auth.
+     *
+     * @param supabaseUserId The Supabase user ID.
+     */
+    private void deleteUserInSupabase(String supabaseUserId) {
+        String url = UriComponentsBuilder.fromHttpUrl(supabaseUrl)
+                .path("/auth/v1/admin/users/")
+                .path(supabaseUserId)
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("apikey", supabaseApiKey);
+        headers.set("Authorization", "Bearer " + supabaseApiKey); // CHANGED: Added authorization header
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("Supabase user {} deleted successfully.", supabaseUserId);
+            } else {
+                logger.error("Failed to delete Supabase user {}. Response code: {}", supabaseUserId, response.getStatusCode());
+            }
+        } catch (Exception e) {
+            logger.error("Exception while deleting Supabase user " + supabaseUserId, e);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Public Methods for Combined Local and Supabase Operations
+    // -------------------------------------------------------------------------
+
+    /**
+     * Updates a user's profile locally and in Supabase Auth.
+     */
+    @Transactional
+    public UserDTO updateAuthUser(UserDTO userDTO) {
+        User existingUser = userRepository.findById(userDTO.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userDTO.getUserId()));
+
+        userMapper.updateUserFromDtoIgnoreEmail(userDTO, existingUser);
+        User savedUser = userRepository.save(existingUser);
+
+        // CHANGED: Propagate update to Supabase Auth
+        updateUserInSupabase(savedUser.getSupabaseUserId(), userMapper.toDto(savedUser));
+        return userMapper.toDto(savedUser);
+    }
+
+    /**
+     * Deletes a user locally and in Supabase Auth.
+     */
+    @Transactional
+    public void deleteAuthUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        // Delete locally
+        userRepository.delete(user);
+        // CHANGED: Propagate deletion to Supabase Auth
+        deleteUserInSupabase(user.getSupabaseUserId());
     }
 }

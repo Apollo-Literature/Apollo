@@ -17,6 +17,13 @@ public class UserDTO implements Serializable {
 
     public UserDTO() {}
 
+    // CHANGED: Added getFullName method to combine firstName and lastName for Supabase updates
+    public String getFullName() {
+        String fName = (firstName != null) ? firstName : "";
+        String lName = (lastName != null) ? lastName : "";
+        return fName + " " + lName;
+    }
+
 
     // Getters and Setters
     public Long getUserId() {

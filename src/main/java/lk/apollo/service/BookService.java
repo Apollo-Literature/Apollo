@@ -1,16 +1,18 @@
 package lk.apollo.service;
 
 import io.micrometer.common.util.StringUtils;
+import lk.apollo.dto.BookDTO;
 import lk.apollo.exception.book.BookIdMissingException;
 import lk.apollo.exception.book.BookNotFoundException;
 import lk.apollo.exception.book.BookNotValidException;
 import lk.apollo.exception.book.NoBooksFoundException;
-import lk.apollo.dto.BookDTO;
 import lk.apollo.mapper.BookMapper;
 import lk.apollo.model.Book;
 import lk.apollo.repository.BookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,13 +40,18 @@ public class BookService {
      * @return List of BookDTO instances
      */
     @Transactional
-    public List<BookDTO> getAllBooks() {
-        List<BookDTO> books = bookRepository.findAll().stream()
-                .map(bookMapper::mapToDTO)
-                .collect(Collectors.toList());
-        log.info("Completed getAllBooks(). Fetched {} books.", books.size());
-        return books;
+    public Page<BookDTO> getAllBooks(Pageable pageable) {
+        Page<Book> booksPage = bookRepository.findAll(pageable);  // Use pageable to get a paged result
+        Page<BookDTO> bookDTOPage = booksPage.map(bookMapper::mapToDTO);  // Convert Book to BookDTO
+
+        log.info("Completed getAllBooks(). Fetched {} books, page {} of {}.",
+                bookDTOPage.getContent().size(),
+                booksPage.getNumber(),
+                booksPage.getTotalPages());
+
+        return bookDTOPage;
     }
+
 
     /**
      * Get book by ID
@@ -146,6 +153,7 @@ public class BookService {
      */
     private void updateBookFromDTO(Book book, BookDTO dto) {
         if (dto.getTitle() != null) book.setTitle(dto.getTitle());
+        if (dto.getAuthor() != null) book.setAuthor(dto.getAuthor());
         if (dto.getDescription() != null) book.setDescription(dto.getDescription());
         if (dto.getIsbn() != null) book.setIsbn(dto.getIsbn());
         if (dto.getPublicationDate() != null) book.setPublicationDate(dto.getPublicationDate());
@@ -164,6 +172,11 @@ public class BookService {
         // Validate title
         if (StringUtils.isBlank(bookDTO.getTitle())) {
             throw new BookNotValidException("Book title is required.");
+        }
+
+        // Validate author
+        if (StringUtils.isBlank(bookDTO.getAuthor())) {
+            throw new BookNotValidException("Book author is required.");
         }
 
         // Validate description

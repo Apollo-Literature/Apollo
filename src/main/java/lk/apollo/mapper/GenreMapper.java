@@ -2,24 +2,18 @@ package lk.apollo.mapper;
 
 import lk.apollo.dto.GenreDTO;
 import lk.apollo.model.Genre;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
-@Component
-public class GenreMapper {
+@Mapper(componentModel = "spring")
+public interface GenreMapper {
 
-    public GenreDTO toDTO(Genre genre) {
-        if (genre == null) {
-            return null;
-        }
-        return new GenreDTO(genre.getName()); // Just return the name as a string
-    }
+    GenreMapper INSTANCE = Mappers.getMapper(GenreMapper.class);
 
-    public Genre toEntity(GenreDTO genreDTO) {
-        if (genreDTO == null) {
-            return null;
-        }
-        Genre genre = new Genre();
-        genre.setName(genreDTO.getName()); // Directly set String name
-        return genre;
-    }
+    @Mapping(source = "name", target = "name")
+    GenreDTO toDTO(Genre genre);
+
+    @Mapping(source = "name", target = "name")
+    Genre toEntity(GenreDTO genreDTO);
 }

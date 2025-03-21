@@ -1,8 +1,10 @@
 package lk.apollo.util;
 
 import jakarta.annotation.PostConstruct;
+import lk.apollo.model.Genre;
 import lk.apollo.model.Permission;
 import lk.apollo.model.Role;
+import lk.apollo.repository.GenreRepository;
 import lk.apollo.repository.PermissionRepository;
 import lk.apollo.repository.RoleRepository;
 import org.springframework.stereotype.Component;
@@ -17,10 +19,13 @@ import java.util.Set;
 public class DataInitializer {
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
+    private final GenreRepository genreRepository;
 
-    public DataInitializer(RoleRepository roleRepository, PermissionRepository permissionRepository) {
+    public DataInitializer(RoleRepository roleRepository, PermissionRepository permissionRepository,
+                           GenreRepository genreRepository) {
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
+        this.genreRepository = genreRepository;
     }
 
     @PostConstruct
@@ -28,6 +33,7 @@ public class DataInitializer {
     public void initialize() {
         initializePermissions();
         initializeRoles();
+        initializeGenres();
     }
 
     private void initializePermissions() {
@@ -84,6 +90,16 @@ public class DataInitializer {
             readerRole.setPermissions(readerPermissions);
 
             roleRepository.save(readerRole);
+        }
+    }
+
+    private void initializeGenres() {
+        for (GenreEnum genreEnum : GenreEnum.values()) {
+            if (!genreRepository.existsByName(genreEnum.name())) {
+                Genre genre = new Genre();
+                genre.setName(genreEnum.name());
+                genreRepository.save(genre);
+            }
         }
     }
 }

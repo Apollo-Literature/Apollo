@@ -12,8 +12,8 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Your API Title")
+                        .title("Apollo API")
                         .version("1.0")
-                        .description("Description of your API"));
+                        .description("Backend API for Apollo Bookstore"));
     }
 }

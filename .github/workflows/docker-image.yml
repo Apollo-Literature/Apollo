@@ -1,4 +1,4 @@
-name: Build, Test, Push, and Deploy to Cloud Run
+name: Build, Test, and Deploy to Cloud Run
 
 on:
   push:
@@ -15,15 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Set up QEMU for multi-architecture builds.
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      # 3. Set up Docker Buildx.
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      # 4. Set environment variables for the Maven build using GitHub Secrets.
+      # 2. Set environment variables for Maven build using GitHub Secrets.
       - name: Set environment variables for Maven build
         run: |
           echo "DB_URL=${{ secrets.DB_URL }}" >> $GITHUB_ENV
@@ -34,50 +26,23 @@ jobs:
           echo "SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }}" >> $GITHUB_ENV
           echo "ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}" >> $GITHUB_ENV
 
-      # 5. Run Maven tests and build the application.
+      # 3. Run Maven tests and build the application.
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      # 6. Log in to GitHub Container Registry (GHCR).
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # 7. Build and push the Docker image.
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/apollo:latest
-          # Optionally pass build args if needed (sensitive data should be injected at runtime).
-          build-args: |
-            DB_URL=${{ secrets.DB_URL }}
-            DB_USERNAME=${{ secrets.DB_USERNAME }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-            SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
-            SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }}
-            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
-
-      # 8. Authenticate with Google Cloud using a service account.
+      # 4. Authenticate with Google Cloud using a service account.
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      # 9. Deploy to Google Cloud Run.
-      # Only deploy on push events to main (prevent deployment on PRs if undesired)
+      # 5. Deploy to Google Cloud Run.
       - name: Deploy to Cloud Run
         if: github.event_name == 'push'
         uses: google-github-actions/deploy-cloudrun@v0
         with:
           service: apollo-service
-          image: ghcr.io/${{ github.repository_owner }}/apollo:latest
+          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/apollo:latest
           region: us-central1
           env_vars: |
             DB_URL=${{ secrets.DB_URL }}

@@ -19,10 +19,11 @@ public class GenreController {
 
     /**
      * Get all genres
+     *
      * @return List of GenreDTO instances
      */
     @GetMapping
-    public ResponseEntity<List<GenreDTO>> getAllGenres() {
+    public ResponseEntity<List<String>> getAllGenres() {
         return ResponseEntity.ok(genreService.getAllGenres());
     }
 

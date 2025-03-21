@@ -1,6 +1,5 @@
-package lk.apollo.config;
+package lk.apollo.util;
 
-import lk.apollo.util.GenreEnum;
 import lk.apollo.model.Genre;
 import lk.apollo.repository.GenreRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -20,8 +19,9 @@ public class GenreDataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         Arrays.stream(GenreEnum.values()).forEach(genreEnum -> {
-            if (genreRepository.findByName(genreEnum).isEmpty()) {
-                genreRepository.save(new Genre(genreEnum));
+            String genreName = genreEnum.name(); // Convert GenreEnum to String
+            if (genreRepository.findByName(genreName).isEmpty()) {
+                genreRepository.save(new Genre(genreName)); // Pass String instead of Enum
             }
         });
     }

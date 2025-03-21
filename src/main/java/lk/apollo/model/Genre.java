@@ -1,39 +1,22 @@
 package lk.apollo.model;
 
 import jakarta.persistence.*;
-import lk.apollo.util.GenreEnum;
+import lombok.*;
 
 @Entity
-@Table(name = "genres")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Genre {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(unique = true, nullable = false)
-    private GenreEnum name;
+    @Column(nullable = false, unique = true)
+    private String name; // Store as String instead of GenreEnum
 
-    public Genre() {}
-
-    public Genre(GenreEnum name) {
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public GenreEnum getName() {
-        return name;
-    }
-
-    public void setName(GenreEnum name) {
-        this.name = name;
+    public Genre(String genreName) {
     }
 }

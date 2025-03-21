@@ -1,14 +1,16 @@
 package lk.apollo.service;
 
 import lk.apollo.dto.UserDTO;
-import lk.apollo.exception.user.AccessDeniedException;
 import lk.apollo.exception.ResourceAlreadyExistsException;
 import lk.apollo.exception.ResourceNotFoundException;
+import lk.apollo.exception.user.AccessDeniedException;
 import lk.apollo.mapper.UserMapper;
 import lk.apollo.model.Role;
 import lk.apollo.model.User;
 import lk.apollo.repository.RoleRepository;
 import lk.apollo.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import java.util.Set;
  */
 @Service
 public class UserService {
+    private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
@@ -127,7 +130,14 @@ public class UserService {
      */
     @Transactional
     public UserDTO updateUser(UserDTO userDTO) {
-        return authService.updateAuthUser(userDTO); // CHANGED: Delegate update operation to AuthService
+        User existingUser = userRepository.findById(userDTO.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userDTO.getUserId()));
+        userMapper.updateUserFromDtoIgnoreEmail(userDTO, existingUser);
+        User savedUser = userRepository.save(existingUser);
+
+        // CHANGED: Propagate update to Supabase Auth
+        authService.updateUserInSupabase(savedUser.getSupabaseUserId(), userMapper.toDto(savedUser));
+        return userMapper.toDto(savedUser);
     }
 
     /**
@@ -137,7 +147,13 @@ public class UserService {
      */
     @Transactional
     public void deleteUser(Long id) {
-        authService.deleteAuthUser(id); // CHANGED: Delegate deletion operation to AuthService
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        // Delete locally
+        userRepository.delete(user);
+        // CHANGED: Propagate deletion to Supabase Auth
+        authService.deleteUserInSupabase(user.getSupabaseUserId());// CHANGED: Delegate deletion operation to AuthService
     }
 
     /**

@@ -2,6 +2,7 @@ package lk.apollo.config;
 
 import lk.apollo.security.SupabaseAuthenticationFilter;
 import lk.apollo.security.SupabaseAuthenticationProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -27,7 +28,7 @@ public class SecurityConfig {
 
     public SecurityConfig(SupabaseAuthenticationProvider authenticationProvider,
                           SupabaseAuthenticationFilter authenticationFilter,
-                          @org.springframework.beans.factory.annotation.Value("${security.allowed-origins}") String allowedOriginsStr) {
+                          @Value("${security.allowed-origins}") String allowedOriginsStr) {
         this.authenticationProvider = authenticationProvider;
         this.authenticationFilter = authenticationFilter;
         this.allowedOrigins = allowedOriginsStr.split(",");

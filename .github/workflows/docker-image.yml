@@ -1,0 +1,54 @@
+name: Build, Test, and Deploy to Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repository.
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Set environment variables for Maven build using GitHub Secrets.
+      - name: Set environment variables for Maven build
+        run: |
+          echo "DB_URL=${{ secrets.DB_URL }}" >> $GITHUB_ENV
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> $GITHUB_ENV
+          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> $GITHUB_ENV
+          echo "SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }}" >> $GITHUB_ENV
+          echo "ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}" >> $GITHUB_ENV
+
+      # 3. Run Maven tests and build the application.
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      # 4. Authenticate with Google Cloud using a service account.
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      # 5. Deploy to Google Cloud Run.
+      - name: Deploy to Cloud Run
+        if: github.event_name == 'push'
+        uses: google-github-actions/deploy-cloudrun@v0
+        with:
+          service: apollo-service
+          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/apollo:latest
+          region: us-central1
+          env_vars: |
+            DB_URL=${{ secrets.DB_URL }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+            SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
+            SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }}
+            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}

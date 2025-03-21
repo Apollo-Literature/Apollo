@@ -300,7 +300,7 @@ public class AuthService {
      * @param supabaseUserId The Supabase user ID.
      * @param userDTO        The updated user details.
      */
-    private void updateUserInSupabase(String supabaseUserId, UserDTO userDTO) {
+    public void updateUserInSupabase(String supabaseUserId, UserDTO userDTO) {
         String url = UriComponentsBuilder.fromHttpUrl(supabaseUrl)
                 .path("/auth/v1/admin/users/")
                 .path(supabaseUserId)
@@ -317,7 +317,7 @@ public class AuthService {
         HttpEntity<String> requestEntity = new HttpEntity<>(payload, headers);
 
         try {
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
             if (response.getStatusCode().is2xxSuccessful()) {
                 logger.info("Supabase user {} updated successfully.", supabaseUserId);
             } else {
@@ -333,7 +333,7 @@ public class AuthService {
      *
      * @param supabaseUserId The Supabase user ID.
      */
-    private void deleteUserInSupabase(String supabaseUserId) {
+    public void deleteUserInSupabase(String supabaseUserId) {
         String url = UriComponentsBuilder.fromHttpUrl(supabaseUrl)
                 .path("/auth/v1/admin/users/")
                 .path(supabaseUserId)
@@ -361,33 +361,4 @@ public class AuthService {
     // Public Methods for Combined Local and Supabase Operations
     // -------------------------------------------------------------------------
 
-    /**
-     * Updates a user's profile locally and in Supabase Auth.
-     */
-    @Transactional
-    public UserDTO updateAuthUser(UserDTO userDTO) {
-        User existingUser = userRepository.findById(userDTO.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userDTO.getUserId()));
-
-        userMapper.updateUserFromDtoIgnoreEmail(userDTO, existingUser);
-        User savedUser = userRepository.save(existingUser);
-
-        // CHANGED: Propagate update to Supabase Auth
-        updateUserInSupabase(savedUser.getSupabaseUserId(), userMapper.toDto(savedUser));
-        return userMapper.toDto(savedUser);
-    }
-
-    /**
-     * Deletes a user locally and in Supabase Auth.
-     */
-    @Transactional
-    public void deleteAuthUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-
-        // Delete locally
-        userRepository.delete(user);
-        // CHANGED: Propagate deletion to Supabase Auth
-        deleteUserInSupabase(user.getSupabaseUserId());
-    }
 }

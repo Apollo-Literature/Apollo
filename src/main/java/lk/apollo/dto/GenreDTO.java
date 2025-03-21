@@ -1,7 +1,19 @@
 package lk.apollo.dto;
 
-import java.io.Serializable;
+public class GenreDTO {
+    private String name;
 
-public class GenreDTO implements Serializable {
+    public GenreDTO() {}
 
+    public GenreDTO(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

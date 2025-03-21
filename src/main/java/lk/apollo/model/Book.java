@@ -14,6 +14,7 @@ public class Book {
     @SequenceGenerator(name = "book_id_seq", sequenceName = "book_id_seq", allocationSize = 1)
     private Long bookId;
     private String title;
+    private String author;
     private String description;
     private String isbn;
     private LocalDate publicationDate;
@@ -24,18 +25,6 @@ public class Book {
     private String url;
 
     public Book() {}
-
-    public Book(String title, String description, String isbn, LocalDate publicationDate, int pageCount, String language, BigDecimal price, String thumbnail, String url) {
-        this.title = title;
-        this.description = description;
-        this.isbn = isbn;
-        this.publicationDate = publicationDate;
-        this.pageCount = pageCount;
-        this.language = language;
-        this.price = price;
-        this.thumbnail = thumbnail;
-        this.url = url;
-    }
 
     //Getters and Setters
 
@@ -53,6 +42,14 @@ public class Book {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
     public String getDescription() {

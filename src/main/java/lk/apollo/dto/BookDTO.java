@@ -7,6 +7,7 @@ import java.time.LocalDate;
 public class BookDTO implements Serializable {
     private Long bookId;
     private String title;
+    private String author;
     private String description;
     private String isbn;
     private LocalDate publicationDate;
@@ -18,8 +19,20 @@ public class BookDTO implements Serializable {
 
     public BookDTO() {}
 
-    public BookDTO(String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, String thumbnail, String url) {
+    public BookDTO(
+            String title,
+            String author,
+            String description,
+            String isbn,
+            LocalDate publicationDate,
+            Integer pageCount,
+            String language,
+            BigDecimal price,
+            String thumbnail,
+            String url
+    ) {
         this.title = title;
+        this.author = author;
         this.description = description;
         this.isbn = isbn;
         this.publicationDate = publicationDate;
@@ -30,9 +43,22 @@ public class BookDTO implements Serializable {
         this.url = url;
     }
 
-    public BookDTO(Long bookId, String title, String description, String isbn, LocalDate publicationDate, Integer pageCount, String language, BigDecimal price, String thumbnail, String url) {
+    public BookDTO(
+            Long bookId,
+            String title,
+            String author,
+            String description,
+            String isbn,
+            LocalDate publicationDate,
+            Integer pageCount,
+            String language,
+            BigDecimal price,
+            String thumbnail,
+            String url
+    ) {
         this.bookId = bookId;
         this.title = title;
+        this.author = author;
         this.description = description;
         this.isbn = isbn;
         this.publicationDate = publicationDate;
@@ -59,6 +85,14 @@ public class BookDTO implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
     public String getDescription() {

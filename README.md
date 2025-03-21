@@ -33,7 +33,7 @@ If using an IDE such as IntelliJ IDEA or Eclipse, ensure Maven is enabled and de
 
 ---
 
-## Step 3: Database Setup
+## Step 3: Database Setup(Local Database)
 Set up the database by following these steps:
 1. Open your PostgreSQL database client.
 2. Create a new database named `apollo`:
@@ -55,6 +55,7 @@ The application requires a `.env` file in the root directory to configure the da
    ```
 
 **Note:** Ensure this file is not committed to version control by adding `.env` to `.gitignore`.
+**Add database URL to application.properties as "spring.datasource.url:URL"**
 
 ---
 
@@ -70,7 +71,7 @@ Or, if using an IDE, run the `main` method in the application’s entry point cl
 ## Step 6: Verify Setup
 To confirm everything is working correctly:
 - Check logs for successful database connections.
-- Open `http://localhost:8080` in your browser (or the configured port) to see the application running.
+- Open `http://localhost:8080/api/v1` in your browser (or the configured port) to see the application running.
 
 ---
 
@@ -85,6 +86,9 @@ To confirm everything is working correctly:
 - For production deployments, configure security settings and environment variables properly.
 - Regularly update dependencies by running `mvn versions:display-dependency-updates`.
 - Follow best practices for storing sensitive information securely.
+
+## Endpoint Documentation
+- The API documentation is available at `http://localhost:8080/api/v1/swagger-ui/index.html` after starting the application.
 
 For further assistance, refer to the project documentation or reach out to the development team.
 

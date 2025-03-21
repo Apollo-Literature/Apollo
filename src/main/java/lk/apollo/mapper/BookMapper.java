@@ -3,7 +3,6 @@ package lk.apollo.mapper;
 import lk.apollo.dto.BookDTO;
 import lk.apollo.model.Book;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 //uses = {GenreMapper.class, UserMapper.class}
 @Mapper(componentModel = "spring")

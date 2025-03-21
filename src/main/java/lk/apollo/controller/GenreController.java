@@ -22,7 +22,7 @@ public class GenreController {
      *
      * @return List of GenreDTO instances
      */
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<String>> getAllGenres() {
         return ResponseEntity.ok(genreService.getAllGenres());
     }
@@ -32,7 +32,7 @@ public class GenreController {
      * @param genreDTO
      * @return GenreDTO instance
      */
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<GenreDTO> addGenre(@RequestBody GenreDTO genreDTO) {
         return ResponseEntity.ok(genreService.addGenre(genreDTO));
     }

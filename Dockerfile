@@ -1,28 +1,28 @@
-# --- Stage 1: Build the Spring Boot application using Maven ---
-FROM maven:3.8.6-openjdk-17 AS build
+# --- Stage 1: Build using valid Maven/Java 21 image ---
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copy pom.xml first to cache dependencies.
+# Cache dependencies
 COPY pom.xml .
-# Copy the source code.
-COPY src ./src
+RUN mvn dependency:go-offline -B
 
-# Build the application; skipping tests.
+# Build application
+COPY src ./src
 RUN mvn clean package -DskipTests
 
-# --- Stage 2: Create the runtime image ---
-FROM openjdk:17-jdk-slim
+# --- Stage 2: Runtime ---
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
-
-# Copy the built jar from the previous stage.
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose the port Spring Boot listens on.
 EXPOSE 8080
 
-# Copy the entrypoint script.
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+# Create a proper entrypoint script that handles environment variables
+RUN echo '#!/bin/bash\n\n\
+if [ -f /app/.env ]; then\n\
+  export $(cat /app/.env | grep -v '"'"'#'"'"' | sed '"'"'s/\\r$//'"'"' | xargs)\n\
+fi\n\n\
+exec java -jar /app/app.jar' > /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh
 
-# Use the entrypoint script to load local .env (for local development) if present.
 ENTRYPOINT ["/app/entrypoint.sh"]

@@ -5,10 +5,11 @@ import lk.apollo.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {RoleMapper.class})
+@Mapper(componentModel = "spring", uses = {RoleMapper.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
     UserDTO toDto(User user);
 
@@ -33,6 +34,8 @@ public interface UserMapper {
     @Mapping(target = "supabaseUserId", ignore = true)
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "isActive", ignore = true)
+    @Mapping(target = "password", source = "password",
+            conditionExpression = "java(userDTO.getPassword() != null && !userDTO.getPassword().trim().isEmpty())")
     void updateUserFromDtoIgnoreEmail(UserDTO userDTO, @MappingTarget User user);
 
     @Mapping(target = "password", ignore = true)

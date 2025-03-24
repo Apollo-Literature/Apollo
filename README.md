@@ -3,7 +3,7 @@
 ## Prerequisites
 Before setting up the project, ensure you have the following installed:
 - [Git](https://git-scm.com/downloads)
-- [Java JDK (Version 8 or later)](https://www.oracle.com/java/technologies/javase-downloads.html)
+- [Java JDK (Version 21)](https://www.oracle.com/java/technologies/javase-downloads.html)
 - [Apache Maven](https://maven.apache.org/download.cgi)
 - [PostgreSQL Database](https://www.postgresql.org/download/)
 - [IntelliJ IDEA or Eclipse](https://www.jetbrains.com/idea/download/)

@@ -40,6 +40,13 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+
+    /**
+     * Gets user by id.
+     *
+     * @param id the id
+     * @return the user by id
+     */
     @PreAuthorize("hasAuthority('ADMIN') or @securityService.isCurrentUser(#id)")
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {

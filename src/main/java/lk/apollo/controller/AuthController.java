@@ -42,6 +42,13 @@ public class AuthController {
         return ResponseEntity.ok(authService.authenticateUser(authRequest));
     }
 
+
+    /**
+     * Register response entity.
+     *
+     * @param userDTO the user dto
+     * @return the response entity
+     */
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@RequestBody UserDTO userDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(userDTO));
